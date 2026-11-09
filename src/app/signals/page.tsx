@@ -40,7 +40,7 @@ export default async function SignalsPage({ searchParams }: { searchParams: Prom
         <h1 style={{ fontSize: "clamp(32px, 5vw, 52px)", fontWeight: 500 }}>What Concha brought back</h1>
         <p className="muted" style={{ maxWidth: 640 }}>
           News, essays and reports from the sources Yasmim follows, each with a summary and, when she has written it,
-          her take.
+          her take. <Link href="/categories" className="inline-link">What each category means →</Link>
         </p>
       </div>
       <nav aria-label="Filter by category" className="chips" style={{ marginBottom: 10 }}>

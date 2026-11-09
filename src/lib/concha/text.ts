@@ -1,4 +1,4 @@
-/** Small HTML helpers for feeds and article pages. No HTML ever reaches the page: only plain text. */
+/** Small HTML helpers for feeds and article pages. No HTML ever reaches the page: only plain text with Sereya's text marks. */
 
 const ENTITIES: Record<string, string> = {
   amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", nbsp: " ", hellip: "…", mdash: "—", ndash: "–",
@@ -42,6 +42,23 @@ export function metaTag(html: string, key: string) {
   return decodeEntities((m?.[1] ?? m?.[2] ?? "").trim());
 }
 
+/** Keeps the source's bold, italic and links as Sereya's text marks (**bold**, *italic*, [words](link)). */
+export function withMarks(html: string): string {
+  return html
+    .replace(/<a\b[^>]*href=["'](https?:\/\/[^"'\s]+)["'][^>]*>([\s\S]*?)<\/a>/gi, (_m, href: string, inner: string) => {
+      const words = stripTags(inner).replace(/\s+/g, " ").trim().replace(/[[\]]/g, "");
+      return words ? `[${words}](${decodeEntities(href).replace(/[()]/g, encodeURIComponent)})` : "";
+    })
+    .replace(/<(strong|b)\b[^>]*>([\s\S]*?)<\/\1>/gi, (_m, _t, inner: string) => {
+      const t = inner.trim();
+      return t && !/^<|>$/.test(t) ? `**${t}**` : inner;
+    })
+    .replace(/<(em|i)\b[^>]*>([\s\S]*?)<\/\1>/gi, (_m, _t, inner: string) => {
+      const t = inner.trim();
+      return t && !/^<|>$/.test(t) ? `*${t}*` : inner;
+    });
+}
+
 const CONTAINERS = [
   /class="[^"]*\bpost-content\b[^"]*"/i,
   /class="[^"]*\bentry-content\b[^"]*"/i,
@@ -73,20 +90,29 @@ export function articleParagraphs(html: string): string[] {
     if (m && m.index + 200 < end) end = m.index + 200;
   }
   chunk = chunk.slice(0, end);
-  const raw = [...chunk.matchAll(/<(p|h2|h3|blockquote)\b[^>]*>([\s\S]*?)<\/\1>/gi)].map((m) => ({
+  const raw = [...chunk.matchAll(/<(p|h2|h3|blockquote|li)\b[^>]*>([\s\S]*?)<\/\1>/gi)].map((m) => ({
     tag: m[1].toLowerCase(),
-    text: stripTags(m[2]).replace(/\n+/g, " ").trim(),
+    text: stripTags(withMarks(m[2])).replace(/\n+/g, " ").trim(),
   }));
   const out: string[] = [];
+  const bare = (t: string) => t.replace(/\[([^\]]*)\]\([^)]*\)/g, "$1").replace(/[*“”"']/g, "");
   for (const { tag, text } of raw) {
     if (!text) continue;
-    if (tag === "p" && text.length < 40) continue;
-    const key = text.replace(/[“”"']/g, "").slice(0, 60);
+    if (tag === "p" && bare(text).length < 40) continue;
+    if (tag === "li" && bare(text).length < 30) continue;
+    const key = bare(text).slice(0, 60);
     // Pull quotes repeat a sentence from the text: keep the first time only.
-    if (out.some((o) => o.replace(/[“”"']/g, "").includes(key))) continue;
-    out.push(tag === "p" ? text : `## ${text}`);
+    if (out.some((o) => bare(o).includes(key))) continue;
+    const plain = text.replace(/\*\*/g, "");
+    out.push(tag === "p" ? text : tag === "li" ? `- ${text}` : tag === "blockquote" ? `> ${text}` : tag === "h3" ? `### ${plain}` : `## ${plain}`);
   }
-  return out.length >= 3 ? out : [];
+  // Items of one list sit together, without blank lines between them.
+  const joined: string[] = [];
+  for (const o of out) {
+    if (o.startsWith("- ") && joined.at(-1)?.startsWith("- ")) joined[joined.length - 1] += `\n${o}`;
+    else joined.push(o);
+  }
+  return out.length >= 3 ? joined : [];
 }
 
 /**

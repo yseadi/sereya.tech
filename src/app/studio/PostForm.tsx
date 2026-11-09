@@ -6,6 +6,8 @@ import { CATEGORIES, CATEGORY_KEYS, FORMATS } from "@/lib/categories";
 import type { Post } from "@/lib/types";
 import { deletePost, savePost, type StudioState } from "./actions";
 import { fetchLinkPreview } from "./preview";
+import { ImagePicker } from "@/components/ImagePicker";
+import { RichEditor } from "@/components/RichEditor";
 
 export function PostForm({ post, justSaved }: { post?: Post; justSaved?: boolean }) {
   const [state, action, saving] = useActionState<StudioState, FormData>(savePost, justSaved ? { saved: true } : {});
@@ -13,6 +15,7 @@ export function PostForm({ post, justSaved }: { post?: Post; justSaved?: boolean
   // React form actions leave the clicked button out of FormData, so the button writes its intent here.
   const intentRef = useRef<HTMLInputElement>(null);
   const [image, setImage] = useState(post?.image_url ?? "");
+  const [broken, setBroken] = useState(false);
   const [fetching, startFetch] = useTransition();
   const [fetchMsg, setFetchMsg] = useState<string | null>(null);
   const [deleting, startDelete] = useTransition();
@@ -36,11 +39,15 @@ export function PostForm({ post, justSaved }: { post?: Post; justSaved?: boolean
       set("byline", p.byline);
       set("body", p.body);
       set("credit", p.credit);
-      if (p.image_url && !image) setImage(p.image_url);
+      if (p.image_url && !image) {
+        setBroken(false);
+        setImage(p.image_url);
+      }
+      const noPhoto = !p.image_url && !image ? " The photo didn’t come: upload one below." : "";
       setFetchMsg(
-        p.body
+        (p.body
           ? "Filled the empty fields, full text included. Check them before publishing."
-          : "Filled the empty fields. The full text didn’t come (paywall or a page Concha can’t read): paste it by hand.",
+          : "Filled the empty fields. The full text didn’t come (paywall or a page Concha can’t read): paste it by hand.") + noPhoto,
       );
     });
   }
@@ -79,7 +86,7 @@ export function PostForm({ post, justSaved }: { post?: Post; justSaved?: boolean
 
         <div className="field full">
           <label htmlFor="body">Full text</label>
-          <textarea id="body" name="body" className="textarea" style={{ minHeight: 260 }} defaultValue={post?.body ?? ""} placeholder="The whole piece, for people to read here. Leave a blank line between paragraphs. Start a line with ## for a subtitle." />
+          <RichEditor id="body" name="body" minHeight={320} defaultValue={post?.body ?? ""} placeholder="The whole piece, for people to read here. Leave a blank line between paragraphs. Select words and use the bar for titles, bold, italic, links and quotes." />
           <span className="hint">“Fill from link” brings it from the source. Check that it starts and ends in the right place. Empty: the post shows the summary and a link.</span>
         </div>
 
@@ -123,11 +130,19 @@ export function PostForm({ post, justSaved }: { post?: Post; justSaved?: boolean
 
         <div className="field full">
           <label htmlFor="image_url">Photo link</label>
-          <input id="image_url" name="image_url" type="url" className="input" value={image} onChange={(e) => setImage(e.target.value)} placeholder="https://…jpg" />
-          {image && (
+          <input id="image_url" name="image_url" type="url" className="input" value={image} onChange={(e) => (setBroken(false), setImage(e.target.value))} placeholder="https://…jpg, or upload one below" />
+          {image && !broken && (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={image} alt="Photo preview" style={{ marginTop: 8, borderRadius: 16, maxHeight: 220, objectFit: "cover" }} />
+            <img src={image} alt="Photo preview" onError={() => setBroken(true)} style={{ marginTop: 8, borderRadius: 16, maxHeight: 220, objectFit: "cover" }} />
           )}
+          {image && broken && <p className="error" style={{ marginTop: 8 }}>This photo link doesn’t open. Upload the photo instead.</p>}
+          <ImagePicker
+            label={image ? "Upload a different photo" : "Upload a photo"}
+            onUploaded={(url) => {
+              setBroken(false);
+              setImage(url);
+            }}
+          />
         </div>
 
         <div className="field">

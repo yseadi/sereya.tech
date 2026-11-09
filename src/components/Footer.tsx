@@ -35,6 +35,8 @@ export async function Footer() {
         </p>
         <nav className="links" aria-label="Footer">
           <Link href="/signals">Signals</Link>
+          <Link href="/categories">Categories</Link>
+          <Link href="/glossary">Glossary</Link>
           <Link href="/community">Community</Link>
           <Link href="/settings">Settings</Link>
         </nav>

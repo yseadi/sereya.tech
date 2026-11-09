@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { IconCommunity, IconHome, IconSignals, IconStudio } from "./Icons";
+import { IconCommunity, IconGlossary, IconHome, IconSignals, IconStudio } from "./Icons";
 
 type Props = { name: string | null; isOwner: boolean };
 
@@ -12,10 +12,14 @@ export function Menu({ name, isOwner }: Props) {
     ? [
         { href: "/", label: "Home", icon: <IconHome /> },
         { href: "/signals", label: "Signals", icon: <IconSignals /> },
+        { href: "/glossary", label: "Glossary", icon: <IconGlossary /> },
         { href: "/community", label: "Community", icon: <IconCommunity /> },
         ...(isOwner ? [{ href: "/studio", label: "Studio", icon: <IconStudio /> }] : []),
       ]
-    : [{ href: "/signals", label: "Signals", icon: <IconSignals /> }];
+    : [
+        { href: "/signals", label: "Signals", icon: <IconSignals /> },
+        { href: "/glossary", label: "Glossary", icon: <IconGlossary /> },
+      ];
   const isActive = (href: string) => (href === "/" ? path === "/" : path.startsWith(href));
 
   return (
