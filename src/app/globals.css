@@ -255,14 +255,6 @@ main { flex: 1; padding-top: 104px; padding-bottom: 72px; }
   background: var(--card); border: 1px solid var(--line-strong); text-align: left; width: 100%;
 }
 .pick-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
-.plan { display: flex; flex-direction: column; gap: 12px; padding: 22px; border-radius: 22px; cursor: pointer; background: var(--card); border: 1px solid var(--line-strong); text-align: left; }
-.plan[aria-pressed="true"] { background: var(--lilac-soft); border: 2px solid var(--lilac-line); }
-.plan .price { font-size: 28px; font-weight: 600; }
-.radio { flex: none; width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid #a8b0b1; }
-.plan[aria-pressed="true"] .radio { border: 6px solid var(--lilac-deep); }
-.toggle { display: inline-flex; padding: 4px; border-radius: 999px; background: var(--card); border: 1px solid var(--line); }
-.toggle button { height: 40px; padding: 0 18px; border-radius: 999px; border: none; cursor: pointer; background: transparent; color: var(--ink-2); }
-.toggle button[aria-pressed="true"] { background: var(--lilac-flat); color: var(--ink); }
 .rhythm { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
 .rhythm .card { padding: 20px; display: flex; flex-direction: column; gap: 6px; }
 

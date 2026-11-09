@@ -12,16 +12,12 @@ create table public.profiles (
   role text not null default 'member' check (role in ('owner', 'member')),
   categories text[] not null default '{}',
   regions text[] not null default '{}',
-  plan_interest text check (plan_interest in ('free', 'member', 'founding')),
-  billing_interest text check (billing_interest in ('month', 'year')),
   onboarded boolean not null default false,
   created_at timestamptz not null default now()
 );
 
 comment on column public.profiles.role is
   'owner = Yasmim (Studio access, moderation). Only the service role can change it.';
-comment on column public.profiles.plan_interest is
-  'Plan picked during signup. No payment in the beta, this only records the choice.';
 
 -- New auth user -> new profile, name taken from the signup metadata.
 create function public.handle_new_user()
@@ -66,7 +62,7 @@ create policy "Members can edit their own profile"
 
 -- Members may only touch these columns. role stays with the service role.
 revoke update on public.profiles from anon, authenticated;
-grant update (display_name, bio, categories, regions, plan_interest, billing_interest, onboarded)
+grant update (display_name, bio, categories, regions, onboarded)
   on public.profiles to authenticated;
 revoke insert, delete on public.profiles from anon, authenticated;
 
