@@ -341,11 +341,14 @@ main > .wrap > *:nth-child(n + 5) { animation-delay: 0.2s; }
 .post-card .ph, .pearl-day .ph { overflow: hidden; }
 .post-card .ph img, .pearl-day .ph img { transition: transform 0.8s cubic-bezier(.2, .7, .2, 1), filter 0.6s; }
 .post-card:hover .ph img, .pearl-day:hover .ph img { transform: scale(1.06); filter: saturate(1.08); }
+/* Card titles: a pearly highlight rises behind the words and they turn white. */
 .post-card h3, .pearl-day h2 {
-  background: linear-gradient(90deg, var(--lilac-line), #9dc0ec) no-repeat 0 100% / 0 2px;
-  transition: background-size 0.45s cubic-bezier(.2, .7, .2, 1); display: inline; padding-bottom: 2px;
+  display: inline; padding: 0 4px; margin: 0 -4px; border-radius: 6px;
+  -webkit-box-decoration-break: clone; box-decoration-break: clone;
+  background: linear-gradient(100deg, #8a76c4, #6d8fd0 55%, #5aa596) no-repeat 0 100% / 100% 2px;
+  transition: background-size 0.4s cubic-bezier(.2, .7, .2, 1), color 0.3s;
 }
-.post-card:hover h3, .pearl-day:hover h2 { background-size: 100% 2px; }
+.post-card:hover h3, .pearl-day:hover h2 { background-size: 100% 100%; color: #ffffff; }
 .post-card .src-chip { transition: transform 0.35s; }
 .post-card:hover .src-chip { transform: translateY(-3px); }
 .pearl-day { position: relative; transition: transform 0.35s cubic-bezier(.2, .7, .2, 1), box-shadow 0.35s; }
@@ -367,8 +370,18 @@ main > .wrap > *:nth-child(n + 5) { animation-delay: 0.2s; }
 .tab svg { transition: transform 0.4s cubic-bezier(.3, 1.6, .5, 1); }
 .tab:hover svg { transform: translateY(-2px) rotate(-8deg) scale(1.12); }
 .tab[aria-current="page"] { box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.9), 0 4px 14px rgba(91, 74, 158, 0.14); }
-.menu-logo img { transition: transform 0.4s cubic-bezier(.3, 1.6, .5, 1); }
-.menu-logo:hover img { transform: scale(1.05) rotate(-1.5deg); }
+/* Logo: on hover the letters turn pearly, nothing moves. */
+.menu-logo { position: relative; }
+.menu-logo::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(110deg, #c97a8e, #8a76c4, #6d8fd0, #5aa596, #c9a46a, #c97a8e) 0 0 / 300% 100%;
+  -webkit-mask: url(/sereya-logo.svg) center / contain no-repeat; mask: url(/sereya-logo.svg) center / contain no-repeat;
+  opacity: 0; transition: opacity 0.4s;
+}
+.menu-logo:hover::after { opacity: 1; animation: pearl-shift 3s linear infinite; }
+.menu-logo img { transition: opacity 0.4s; }
+.menu-logo:hover img { opacity: 0; }
+@keyframes pearl-shift { to { background-position: 150% 0; } }
 .avatar { transition: transform 0.4s cubic-bezier(.3, 1.6, .5, 1), box-shadow 0.4s; }
 .menu-me:hover .avatar { transform: scale(1.08) rotate(6deg); box-shadow: inset 0 -4px 10px rgba(91, 74, 158, 0.12), 0 0 0 4px rgba(226, 218, 242, 0.7); }
 
@@ -379,12 +392,19 @@ main > .wrap > *:nth-child(n + 5) { animation-delay: 0.2s; }
 .pick:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(91, 74, 158, 0.1); }
 
 /* Links inside reading text: a pearly underline that grows. */
-.post-body a, .post-credit a, .footer .links a, .comment .text a {
+.post-body a, .post-credit a, .comment .text a {
   text-decoration: none;
   background: linear-gradient(90deg, var(--lilac-line), #9dc0ec) no-repeat 0 100% / 100% 1px;
   transition: background-size 0.3s, color 0.3s;
 }
-.post-body a:hover, .post-credit a:hover, .footer .links a:hover, .comment .text a:hover { background-size: 100% 100%; color: var(--ink); }
+.post-body a:hover, .post-credit a:hover, .comment .text a:hover { background-size: 100% 100%; color: var(--ink); }
+/* Footer links: a pearly underline that draws itself. */
+.footer .links a {
+  text-decoration: none; padding-bottom: 2px;
+  background: linear-gradient(90deg, #8a76c4, #6d8fd0 55%, #5aa596) no-repeat 0 100% / 0 2px;
+  transition: background-size 0.45s cubic-bezier(.2, .7, .2, 1), color 0.3s;
+}
+.footer .links a:hover { background-size: 100% 2px; color: var(--ink); }
 
 /* Pearl: a little lift and quicker orbits under the mouse. */
 .band .pearl { transition: transform 0.6s cubic-bezier(.2, .7, .2, 1); }
