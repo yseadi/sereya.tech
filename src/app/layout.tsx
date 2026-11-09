@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Footer } from "@/components/Footer";
+import { Glow } from "@/components/Glow";
 import { Menu } from "@/components/Menu";
 import { firstName, getViewer } from "@/lib/auth";
 import "./globals.css";
@@ -41,6 +42,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         />
       </head>
       <body>
+        <Glow />
         <Menu name={name} isOwner={profile?.role === "owner"} />
         <main>{children}</main>
         <Footer />

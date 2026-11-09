@@ -154,10 +154,11 @@ export async function runConcha(trigger: "schedule" | "manual"): Promise<RunSumm
         if (img) r.image_url = new URL(img, r.source_url).toString();
       }
       if (r.fullText) {
-        const paragraphs = articleParagraphs(html);
-        if (paragraphs.length) {
-          r.body = paragraphs.join("\n\n").slice(0, 100000);
-          r.credit = r.license.slice(0, 400);
+        const known = articleParagraphs(html);
+        const body = known.length ? known.join("\n\n") : readableText(html);
+        if (body.length >= 400) {
+          r.body = body.slice(0, 100000);
+          r.credit = (r.license || `Originally published by ${r.source_name}.`).slice(0, 400);
         }
       } else if (writer && Date.now() - started.getTime() < WRITER_UNTIL_MS) {
         const text = readableText(html);

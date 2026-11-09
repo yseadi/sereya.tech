@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { fetchText } from "@/lib/concha/feed";
 import { runConcha } from "@/lib/concha/run";
 import { canSummarize, summarize } from "@/lib/concha/summarize";
-import { readableText } from "@/lib/concha/text";
+import { articleParagraphs, readableText } from "@/lib/concha/text";
 
 type Result = { error?: string; message?: string };
 
@@ -143,4 +143,27 @@ export async function writeSummary(id: string): Promise<Result> {
   }
   refresh();
   return { message: "Summary written." };
+}
+
+/** Bring the whole text of a post's source into the post, now. */
+export async function pullFullText(id: string): Promise<Result> {
+  const { supabase, ok } = await owner();
+  if (!ok) return { error: "Only Yasmim can do this." };
+  const { data: post } = await supabase.from("posts").select("source_name, source_url").eq("id", id).single();
+  if (!post?.source_url) return { error: "This post has no source link to read." };
+  try {
+    const html = await fetchText(post.source_url, 10000);
+    const known = articleParagraphs(html);
+    const body = (known.length ? known.join("\n\n") : readableText(html)).slice(0, 100000);
+    if (body.length < 400) return { error: "The text didn’t come (paywall or a page Concha can’t read). Paste it in Edit." };
+    const { error } = await supabase
+      .from("posts")
+      .update({ body, credit: `Originally published by ${post.source_name || new URL(post.source_url).hostname}.` })
+      .eq("id", id);
+    if (error) return { error: "Couldn’t save the text." };
+  } catch {
+    return { error: "Couldn’t reach the source. Try again in a minute." };
+  }
+  refresh();
+  return { message: "Full text is in. Check where it starts and ends in Edit." };
 }

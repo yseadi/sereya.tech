@@ -119,12 +119,13 @@ insert into public.sources (name, feed_url, full_text, license_note) values
    'Republished under Creative Commons BY-NC-ND 4.0: credit and link to the original, no edits, non-commercial.')
 on conflict (feed_url) do nothing;
 
-insert into public.sources (name, feed_url) values
-  ('MIT Technology Review', 'https://www.technologyreview.com/feed/'),
-  ('Dezeen', 'https://www.dezeen.com/feed/'),
-  ('TechCrunch', 'https://techcrunch.com/feed/'),
-  ('Futurism', 'https://futurism.com/feed'),
-  ('IEEE Spectrum', 'https://spectrum.ieee.org/feeds/feed.rss')
+-- Yasmim asked for the full text from every source; she arranges the permissions herself.
+insert into public.sources (name, feed_url, full_text) values
+  ('MIT Technology Review', 'https://www.technologyreview.com/feed/', true),
+  ('Dezeen', 'https://www.dezeen.com/feed/', true),
+  ('TechCrunch', 'https://techcrunch.com/feed/', true),
+  ('Futurism', 'https://futurism.com/feed', true),
+  ('IEEE Spectrum', 'https://spectrum.ieee.org/feeds/feed.rss', true)
 on conflict (feed_url) do nothing;
 
 insert into public.concha_terms (kind, term, aliases) values

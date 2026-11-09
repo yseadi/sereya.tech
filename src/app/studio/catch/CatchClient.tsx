@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState, useTransition } from "react";
 import { CategoryPill } from "@/components/CategoryPill";
 import type { Post } from "@/lib/types";
-import { publishCaught, runNow, setCatchStatus, writeSummary } from "../concha-actions";
+import { publishCaught, runNow, setCatchStatus, pullFullText } from "../concha-actions";
 
 export function RunNowButton() {
   const [pending, start] = useTransition();
@@ -112,9 +112,9 @@ export function CatchCard({ post }: { post: Post }) {
               type="button"
               className="btn quiet small"
               disabled={pending}
-              onClick={() => start(async () => { setError(null); const r = await writeSummary(post.id); if (r.error) setError(r.error); })}
+              onClick={() => start(async () => { setError(null); const r = await pullFullText(post.id); if (r.error) setError(r.error); })}
             >
-              {pending ? "Writing…" : "Write summary"}
+              {pending ? "Bringing…" : "Bring full text"}
             </button>
           )}
           <button type="button" className="btn quiet small" disabled={pending} onClick={() => act(() => setCatchStatus(post.id, "skipped"), "discarded")}>Discard</button>

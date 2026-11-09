@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState, useTransition } from "react";
 import { saveTake, setStatus } from "@/app/studio/actions";
-import { writeSummary } from "@/app/studio/concha-actions";
+import { pullFullText } from "@/app/studio/concha-actions";
 
 /** Yasmim's bar on every post: edit in the Studio, write her take in place, publish or unpublish. */
 export function OwnerTools({ id, slug, take, status, hasBody }: { id: string; slug: string; take: string; status: "draft" | "published" | "caught" | "skipped"; hasBody?: boolean }) {
@@ -28,9 +28,9 @@ export function OwnerTools({ id, slug, take, status, hasBody }: { id: string; sl
             type="button"
             className="btn"
             disabled={pending}
-            onClick={() => start(async () => { setNote("Reading the source…"); const r = await writeSummary(id); setNote(r.error ?? r.message ?? null); })}
+            onClick={() => start(async () => { setNote("Reading the source…"); const r = await pullFullText(id); setNote(r.error ?? r.message ?? null); })}
           >
-            Write summary
+            Bring full text
           </button>
         )}
         <button
