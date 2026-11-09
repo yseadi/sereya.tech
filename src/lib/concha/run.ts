@@ -4,7 +4,7 @@ import { createAdminClient } from "../supabase/server";
 import { slugify } from "../format";
 import { readFeed, fetchText, type FeedItem } from "./feed";
 import { compile, score, type Term } from "./score";
-import { articleParagraphs, metaTag, readableText } from "./text";
+import { metaTag, readableText } from "./text";
 
 const KEEP_AT = 40; // Today's catch
 const PUBLISH_AT = 85; // auto-publish, when switched on
@@ -44,7 +44,7 @@ function uniqueSlug(title: string, link: string, taken: Set<string>) {
   if (taken.has(slug)) {
     let h = 0;
     for (const ch of link) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
-    slug = `${base.slice(0, 60)}-${h.toString(36).slice(0, 6)}`;
+    slug = `${base.slice(0, 60).replace(/-+$/, "")}-${h.toString(36).slice(0, 6)}`;
   }
   taken.add(slug);
   return slug;
@@ -154,8 +154,7 @@ export async function runConcha(trigger: "schedule" | "manual"): Promise<RunSumm
         if (img) r.image_url = new URL(img, r.source_url).toString();
       }
       if (r.fullText) {
-        const known = articleParagraphs(html);
-        const body = known.length ? known.join("\n\n") : readableText(html);
+        const body = readableText(html);
         if (body.length >= 400) {
           r.body = body.slice(0, 100000);
           r.credit = (r.license || `Originally published by ${r.source_name}.`).slice(0, 400);
