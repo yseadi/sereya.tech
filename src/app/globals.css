@@ -186,9 +186,30 @@ main { flex: 1; padding-top: 104px; padding-bottom: 72px; }
 .post-card .take-line { font-size: 14px; color: var(--lilac-deep); font-style: italic; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .post-card .meta { margin-top: auto; display: flex; gap: 14px; align-items: center; font-size: 13px; color: var(--muted); padding-top: 6px; }
 .post-card.essay .ph { aspect-ratio: 4 / 3; }
-.post-card.report { flex-direction: row; }
-.post-card.report .ph { aspect-ratio: auto; width: 38%; min-height: 220px; }
-@media (max-width: 520px) { .post-card.report { flex-direction: column; } .post-card.report .ph { width: 100%; min-height: 160px; } }
+/* Report: the photo becomes a printed cover resting on a pearly desk. */
+.post-card.report .ph {
+  aspect-ratio: 16 / 9; display: flex; align-items: center; justify-content: center; padding: 18px 0 0;
+  background:
+    radial-gradient(80% 120% at 0% 0%, #fbedef, transparent 60%),
+    radial-gradient(80% 120% at 100% 100%, #e8f5f1, transparent 60%),
+    linear-gradient(135deg, #f1ecfb, #eaf2fc);
+}
+.post-card.report .ph .cover {
+  position: relative; width: 52%; height: 100%; border-radius: 6px 6px 0 0; overflow: hidden;
+  background: #ffffff; box-shadow: 0 -2px 0 #ffffff, 0 12px 30px rgba(31, 42, 44, 0.18);
+  transform: rotate(-3deg) translateY(6px); transition: transform 0.5s cubic-bezier(.2, .7, .2, 1);
+}
+.post-card.report .ph .cover img { width: 100%; height: 72%; object-fit: cover; }
+.post-card.report .ph .cover::after {
+  content: ""; position: absolute; left: 10%; right: 10%; bottom: 9%; height: 14%;
+  background: repeating-linear-gradient(#dce0e0 0 2px, transparent 2px 8px);
+}
+.post-card.report:hover .ph .cover { transform: rotate(0deg) translateY(0); }
+.post-card.report:hover .ph .cover img { transform: none; }
+.post-card.report .ph .stamp {
+  position: absolute; top: 12px; right: 12px; font-size: 11px; font-weight: 600; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--lilac-deep); background: rgba(255, 255, 255, 0.9); padding: 4px 10px; border-radius: 999px;
+}
 
 /* ---------- Pearl of the day ---------- */
 .pearl-day { display: grid; grid-template-columns: 1.1fr 1fr; overflow: hidden; }
@@ -274,3 +295,177 @@ main { flex: 1; padding-top: 104px; padding-bottom: 72px; }
 .footer .links a { color: var(--ink-3); text-decoration: none; }
 .footer .links a:hover { color: var(--ink); }
 .footer .fine { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; font-size: 13px; color: var(--muted); }
+
+/* Full text of a signal */
+.post-body { display: flex; flex-direction: column; gap: 18px; margin: 8px 0 24px; }
+.post-body p { font-size: 18px; line-height: 1.7; color: #2b3537; }
+.post-body h2 { font-size: 24px; font-weight: 500; margin-top: 14px; }
+.post-credit { font-size: 14px; color: var(--ink-2); border-top: 1px solid var(--line); padding-top: 14px; margin-bottom: 28px; }
+
+/* ======================================================================
+   Delight: hover effects, pearly light that follows the mouse, page
+   entrance and the loading screen. Everything calms down for people who
+   ask for reduced motion.
+   ====================================================================== */
+
+/* Page entrance: content rises in softly, one block after the other. */
+main > .wrap > *, main > .wrap.narrow > article > * { animation: rise-in 0.6s cubic-bezier(.2, .7, .2, 1) both; }
+main > .wrap > *:nth-child(2) { animation-delay: 0.05s; }
+main > .wrap > *:nth-child(3) { animation-delay: 0.1s; }
+main > .wrap > *:nth-child(4) { animation-delay: 0.15s; }
+main > .wrap > *:nth-child(n + 5) { animation-delay: 0.2s; }
+@keyframes rise-in { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+
+/* Pearly light under the mouse, on every card (position set by Glow.tsx). */
+.card, .post-card { position: relative; isolation: isolate; }
+.card::before, .post-card::before {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; z-index: 2;
+  background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 50%), rgba(185, 165, 238, 0.16), rgba(157, 192, 236, 0.08) 40%, transparent 70%);
+  opacity: 0; transition: opacity 0.35s;
+}
+.card:hover::before, .post-card:hover::before { opacity: 1; }
+/* An iridescent rim that lights up on hover. */
+.post-card::after, .pearl-day::after {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1.5px; pointer-events: none; z-index: 3;
+  background: conic-gradient(from var(--rim, 0deg), #e39aaa, #b9a5ee, #9dc0ec, #7fc9b5, #ebc48e, #e39aaa);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude;
+  opacity: 0; transition: opacity 0.35s;
+}
+.post-card:hover::after, .pearl-day:hover::after { opacity: 0.9; animation: rim 4s linear infinite; }
+@property --rim { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+@keyframes rim { to { --rim: 360deg; } }
+
+.post-card { transition: transform 0.35s cubic-bezier(.2, .7, .2, 1), box-shadow 0.35s; }
+.post-card:hover { transform: translateY(-5px); box-shadow: 0 22px 48px rgba(91, 74, 158, 0.13); }
+.post-card .ph, .pearl-day .ph { overflow: hidden; }
+.post-card .ph img, .pearl-day .ph img { transition: transform 0.8s cubic-bezier(.2, .7, .2, 1), filter 0.6s; }
+.post-card:hover .ph img, .pearl-day:hover .ph img { transform: scale(1.06); filter: saturate(1.08); }
+/* Card titles: a pearly highlight rises behind the words and they turn white. */
+.post-card h3, .pearl-day h2 { line-height: 1.6; }
+.post-card h3 .t, .pearl-day h2 .t {
+  display: inline; padding: 1px 3px; margin: 0 -3px; border-radius: 4px;
+  -webkit-box-decoration-break: clone; box-decoration-break: clone;
+  background: linear-gradient(100deg, #8a76c4, #6d8fd0 55%, #5aa596) no-repeat 0 100% / 100% 2px;
+  transition: background-size 0.4s cubic-bezier(.2, .7, .2, 1), color 0.3s;
+}
+.post-card:hover h3 .t, .pearl-day:hover h2 .t { background-size: 100% 100%; color: #ffffff; }
+.post-card .src-chip { transition: transform 0.35s; }
+.post-card:hover .src-chip { transform: translateY(-3px); }
+.pearl-day { position: relative; transition: transform 0.35s cubic-bezier(.2, .7, .2, 1), box-shadow 0.35s; }
+.pearl-day:hover { transform: translateY(-3px); box-shadow: 0 22px 48px rgba(91, 74, 158, 0.12); }
+
+/* Graphite buttons get a pearly sheen that sweeps across. */
+.btn { position: relative; overflow: hidden; isolation: isolate; }
+.btn::after {
+  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background: linear-gradient(110deg, transparent 30%, rgba(226, 218, 242, 0.35) 45%, rgba(234, 242, 252, 0.45) 50%, transparent 65%);
+  transform: translateX(-110%); transition: transform 0.7s cubic-bezier(.2, .7, .2, 1);
+}
+.btn:not(:disabled):hover::after { transform: translateX(110%); }
+.btn:not(:disabled):active { transform: translateY(0) scale(0.97); }
+.btn.ghost:not(:disabled):hover { border-color: var(--lilac-line); background: var(--lilac-soft); }
+.btn.quiet:not(:disabled):hover { background: var(--lilac-soft); color: var(--lilac-deep); }
+
+/* Menu: icons wake up, the active tab glows like a pearl. */
+.tab svg { transition: transform 0.4s cubic-bezier(.3, 1.6, .5, 1); }
+.tab:hover svg { transform: translateY(-2px) rotate(-8deg) scale(1.12); }
+.tab[aria-current="page"] { box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.9), 0 4px 14px rgba(91, 74, 158, 0.14); }
+/* Logo: on hover the letters turn pearly, nothing moves. */
+.menu-logo { position: relative; }
+.menu-logo::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(110deg, #c97a8e, #8a76c4, #6d8fd0, #5aa596, #c9a46a, #c97a8e) 0 0 / 300% 100%;
+  -webkit-mask: url(/sereya-logo.svg) center / contain no-repeat; mask: url(/sereya-logo.svg) center / contain no-repeat;
+  opacity: 0; transition: opacity 0.4s;
+}
+.menu-logo:hover::after { opacity: 1; animation: pearl-shift 3s linear infinite; }
+.menu-logo img { transition: opacity 0.4s; }
+.menu-logo:hover img { opacity: 0; }
+@keyframes pearl-shift { to { background-position: 150% 0; } }
+.avatar { transition: transform 0.4s cubic-bezier(.3, 1.6, .5, 1), box-shadow 0.4s; }
+.menu-me:hover .avatar { transform: scale(1.08) rotate(6deg); box-shadow: inset 0 -4px 10px rgba(91, 74, 158, 0.12), 0 0 0 4px rgba(226, 218, 242, 0.7); }
+
+/* Chips and pills. */
+.chip { transition: transform 0.25s, background 0.25s, border-color 0.25s, box-shadow 0.25s; }
+.chip:hover { transform: translateY(-2px); border-color: var(--lilac-line); box-shadow: 0 6px 16px rgba(91, 74, 158, 0.1); }
+.pick { transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s; }
+.pick:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(91, 74, 158, 0.1); }
+
+/* Links inside reading text: a pearly underline that grows. */
+.post-body a, .post-credit a, .comment .text a {
+  text-decoration: none;
+  background: linear-gradient(90deg, var(--lilac-line), #9dc0ec) no-repeat 0 100% / 100% 1px;
+  transition: background-size 0.3s, color 0.3s;
+}
+.post-body a:hover, .post-credit a:hover, .comment .text a:hover { background-size: 100% 100%; color: var(--ink); }
+/* Footer links: a pearly underline that draws itself. */
+.footer .links a {
+  text-decoration: none; padding-bottom: 2px;
+  background: linear-gradient(90deg, #8a76c4, #6d8fd0 55%, #5aa596) no-repeat 0 100% / 0 2px;
+  transition: background-size 0.45s cubic-bezier(.2, .7, .2, 1), color 0.3s;
+}
+.footer .links a:hover { background-size: 100% 2px; color: var(--ink); }
+
+/* Pearl: a little lift and quicker orbits under the mouse. */
+.band .pearl { transition: transform 0.6s cubic-bezier(.2, .7, .2, 1); }
+.band:hover .pearl { transform: scale(1.04) rotate(-3deg); }
+.band:hover .pearl .orbit { animation-duration: 7s; }
+.band:hover .pearl .orbit.b { animation-duration: 10s; }
+.band:hover .pearl .orbit.c { animation-duration: 13s; }
+
+/* Likes pop. */
+.like { transition: transform 0.3s cubic-bezier(.3, 1.6, .5, 1), background 0.2s; }
+.like:hover { transform: scale(1.06); }
+.like[aria-pressed="true"] svg { animation: pop 0.45s cubic-bezier(.3, 1.6, .5, 1); }
+@keyframes pop { 0% { transform: scale(0.6); } 60% { transform: scale(1.3); } 100% { transform: scale(1); } }
+
+/* Comments and table rows warm up under the mouse. */
+.comment { transition: background 0.25s; }
+.studio-table tbody tr { transition: background 0.2s; }
+.studio-table tbody tr:hover { background: var(--lilac-soft); }
+
+/* ---------- Navigation: thin pearly bar at the top ---------- */
+.nav-bar {
+  position: fixed; top: 0; left: 0; height: 3px; z-index: 60; pointer-events: none;
+  background: linear-gradient(90deg, #e39aaa, #b9a5ee, #9dc0ec, #7fc9b5);
+  box-shadow: 0 0 12px rgba(185, 165, 238, 0.8);
+  border-radius: 0 3px 3px 0;
+  transition: width 0.4s cubic-bezier(.2, .7, .2, 1), opacity 0.4s;
+}
+
+/* ---------- Loading screen: the pearl dives, bubbles rise ---------- */
+.loading-screen {
+  min-height: calc(100vh - 260px); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px;
+  position: relative; overflow: hidden; text-align: center;
+  animation: fade-in 0.4s 0.15s both;
+}
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+.loading-screen .pearl { animation: float 3.2s ease-in-out infinite; }
+.loading-screen .pearl .orbit { animation-duration: 3.5s; }
+.loading-screen .pearl .orbit.b { animation-duration: 5s; }
+.loading-screen .pearl .orbit.c { animation-duration: 6.5s; }
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+.loading-screen p { color: var(--ink-3); font-size: 16px; letter-spacing: 0.02em; }
+.loading-screen p span { display: inline-block; animation: blink 1.4s infinite both; }
+.loading-screen p span:nth-child(2) { animation-delay: 0.2s; }
+.loading-screen p span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes blink { 0%, 80%, 100% { opacity: 0.2; } 40% { opacity: 1; } }
+.bubbles { position: absolute; inset: 0; pointer-events: none; }
+.bubbles i {
+  position: absolute; bottom: -30px; border-radius: 50%;
+  border: 1px solid rgba(140, 127, 176, 0.45);
+  background: radial-gradient(circle at 32% 28%, #ffffff, rgba(241, 236, 251, 0.6) 55%, rgba(214, 232, 245, 0.25));
+  animation: bubble linear infinite;
+}
+@keyframes bubble {
+  0% { transform: translate(0, 0) scale(0.6); opacity: 0; }
+  10% { opacity: 1; }
+  50% { transform: translate(14px, -45vh) scale(1); }
+  100% { transform: translate(-10px, -90vh) scale(1.1); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.001s !important; animation-iteration-count: 1 !important; transition-duration: 0.001s !important; }
+  .bubbles { display: none; }
+}

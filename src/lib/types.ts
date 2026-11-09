@@ -25,7 +25,13 @@ export interface Post {
   category: CategoryKey;
   format: Format;
   tags: string[];
-  status: "draft" | "published";
+  status: "draft" | "published" | "caught" | "skipped";
+  origin: "studio" | "concha";
+  fit: number | null;
+  matched: string[];
+  caught_at: string | null;
+  body: string;
+  credit: string;
   is_pearl: boolean;
   published_at: string | null;
   created_at: string;

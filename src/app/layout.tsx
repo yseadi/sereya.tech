@@ -1,13 +1,31 @@
 import type { Metadata } from "next";
 import { Footer } from "@/components/Footer";
+import { Glow } from "@/components/Glow";
 import { Menu } from "@/components/Menu";
 import { firstName, getViewer } from "@/lib/auth";
 import "./globals.css";
 
+const description =
+  "Signals, trends and readings on technology, culture and the world outside the usual centres. Made in Brasil, reading the world.";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://sereya.tech"),
   title: { default: "Sereya Tech", template: "%s · Sereya Tech" },
-  description: "Signals, trends and readings on technology, culture and the world outside the usual centres.",
+  description,
+  applicationName: "Sereya Tech",
+  openGraph: {
+    type: "website",
+    siteName: "Sereya Tech",
+    title: "Sereya Tech",
+    description,
+    url: "/",
+    locale: "en_US",
+    images: [{ url: "/og.png", width: 1200, height: 630, alt: "Sereya Tech, signals from the world outside the usual centres" }],
+  },
+  twitter: { card: "summary_large_image", title: "Sereya Tech", description, images: ["/og.png"] },
 };
+
+export const viewport = { themeColor: "#f1ecfb" };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const { user, profile } = await getViewer();
@@ -24,6 +42,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         />
       </head>
       <body>
+        <Glow />
         <Menu name={name} isOwner={profile?.role === "owner"} />
         <main>{children}</main>
         <Footer />

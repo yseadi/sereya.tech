@@ -6,13 +6,23 @@ import { CategoryPill } from "./CategoryPill";
 import { IconComment, IconHeart } from "./Icons";
 import { SourceMark } from "./SourceMark";
 
-/** One card per format: News has a wide photo, Essay a taller magazine photo, Report a side cover. */
+/** One card per format: News has a wide photo, Essay a taller magazine photo, Report a printed cover. */
 export function PostCard({ post, showCounts }: { post: PostWithCounts; showCounts: boolean }) {
   const fmt = post.format.toLowerCase();
   return (
     <Link href={`/signals/${post.slug}`} className={`card post-card ${fmt}`}>
       <div className="ph">
-        {post.image_url ? (
+        {fmt === "report" ? (
+          <>
+            <span className="cover">
+              {post.image_url ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={post.image_url} alt="" loading="lazy" />
+              ) : null}
+            </span>
+            <span className="stamp">Report</span>
+          </>
+        ) : post.image_url ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={post.image_url} alt="" loading="lazy" />
         ) : null}
@@ -23,7 +33,7 @@ export function PostCard({ post, showCounts }: { post: PostWithCounts; showCount
           <CategoryPill category={post.category} />
           <span className="pill" style={{ background: "#f5f6f6", color: "#5a6567" }}>{post.format}</span>
         </div>
-        <h3>{post.title}</h3>
+        <h3><span className="t">{post.title}</span></h3>
         {post.dek && <p className="dek">{post.dek}</p>}
         {post.take && <p className="take-line">Yasmim: “{post.take}”</p>}
         <div className="meta">

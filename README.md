@@ -14,7 +14,15 @@ forum-style conversations on every signal.
 | Member | Join with an invite code, pick categories and regions. Get a Home filtered by their categories, like signals, comment, reply to each other, like comments, edit or delete their own comments. Community page with the latest comments and the most talked-about signals. Settings for name, bio, categories, regions. |
 | Owner (Yasmim) | Everything above, plus the **Studio** tab: create, edit, publish, unpublish and delete signals, "Fill from link" (reads the source's title, summary and photo), mark the Pearl of the day, see members, likes and comments. On every post a dark owner bar lets her write or edit **her take** right there. Her comments carry a "Sereya" badge and she can delete any comment. |
 
-Not in the V1 yet: Trends, Sonar, Readings/Carta, plans and payments (everything is free for now), Concha (the crawler) feeding signals automatically, image upload (photos are links for now), Google login.
+**Concha, the crawler.** Every day at 06am (Brasil) Vercel calls `/api/concha`. Concha reads the RSS feeds in
+Studio → Concha's universe, gives each new item a Fit (0 to 100: glossary terms +35, category words +10, Global South
+lens +20, never list = 0), keeps Fit 40+ in Studio → Today's catch and skips the rest (gone after 14 days). With
+"publish by itself" on, Fit 85+ goes straight to Signals. Sources marked "Full text" (only open licenses, e.g. Rest of
+World under CC BY-NC-ND 4.0) bring the whole article, shown on the post with a credit line; the others show the summary
+and a link, plus (when `ANTHROPIC_API_KEY` is set) a summary of up to three paragraphs that Claude writes in Sereya's
+own words, credited and linked to the original. Yasmim's take always closes the post.
+
+Not in the V1 yet: Trends, Sonar, Readings/Carta, plans and payments (everything is free for now), image upload (photos are links for now), Google login.
 
 ## How it is built
 
@@ -31,7 +39,7 @@ About 20 minutes. No credit card.
 ### 1. Supabase (database and login)
 
 1. Create an account at [supabase.com](https://supabase.com) and a **New project**. Name: `sereya`. Region: **South America (São Paulo)**. Save the database password somewhere safe.
-2. In the project, open **SQL Editor**, paste the whole content of `supabase/migrations/20261109120000_init.sql` and click **Run**. Then do the same with `supabase/seed.sql`.
+2. In the project, open **SQL Editor**, paste the whole content of `supabase/migrations/20261109120000_init.sql` and click **Run**. Then do the same with `supabase/migrations/20261109150000_concha.sql` and `supabase/seed.sql`.
 3. **Authentication → Sign In / Providers**: turn **off** "Allow new users to sign up". Keep the **Email** provider on (the app creates accounts itself, after checking the invite code).
 4. **Project Settings → API Keys**: copy the **Project URL**, the **anon / publishable** key and the **service_role / secret** key. The secret key is like a master password: only paste it in Vercel, never anywhere else.
 
@@ -48,6 +56,8 @@ About 20 minutes. No credit card.
    | `OWNER_EMAIL` | the email you will join with |
    | `INVITE_CODE` | a word for your friends, e.g. `perola` |
    | `NEXT_PUBLIC_SITE_URL` | leave for now, fill after step 3 |
+   | `CRON_SECRET` | any long random word; Vercel sends it when it calls Concha |
+   | `ANTHROPIC_API_KEY` | optional: key from console.anthropic.com. With it, Concha writes up to three paragraphs in Sereya's words for sources that don't allow republishing (model `claude-haiku-5-5`, change with `CONCHA_MODEL`) |
 
 3. Click **Deploy**. Vercel gives you an address like `sereya-tech.vercel.app`. Put it in `NEXT_PUBLIC_SITE_URL` (Settings → Environment Variables) and **Redeploy**.
 4. Back in Supabase, **Authentication → URL Configuration**: Site URL = your Vercel address, and add `https://<your address>/auth/callback` to Redirect URLs.
@@ -78,7 +88,8 @@ Database rule tests (plain Postgres is enough):
 ```bash
 createdb sereya_test
 psql -d sereya_test -f supabase/tests/stub_auth.sql \
-  -f supabase/migrations/20261109120000_init.sql -f supabase/seed.sql \
+  -f supabase/migrations/20261109120000_init.sql \
+  -f supabase/migrations/20261109150000_concha.sql -f supabase/seed.sql \
   -f supabase/tests/rls_test.sql   # ends with "ALL RLS CHECKS PASSED"
 ```
 

@@ -1,8 +1,9 @@
 "use server";
 
+import { articleParagraphs, readableText } from "@/lib/concha/text";
 import { createClient } from "@/lib/supabase/server";
 
-export type LinkPreview = { title?: string; dek?: string; image_url?: string; source_name?: string; byline?: string; error?: string };
+export type LinkPreview = { title?: string; dek?: string; image_url?: string; source_name?: string; byline?: string; body?: string; credit?: string; error?: string };
 
 function meta(html: string, key: string) {
   const re = new RegExp(
@@ -27,7 +28,7 @@ function decode(s: string) {
     .replace(/&nbsp;/g, " ");
 }
 
-/** Reads a source page's title, summary and photo so Yasmim doesn't retype them. Owner only. */
+/** Reads a source page's title, summary, photo and full text so Yasmim doesn't retype them. Owner only. */
 export async function fetchLinkPreview(rawUrl: string): Promise<LinkPreview> {
   const supabase = await createClient();
   const {
@@ -54,12 +55,17 @@ export async function fetchLinkPreview(rawUrl: string): Promise<LinkPreview> {
       redirect: "follow",
     });
     if (!res.ok) return { error: `The site answered ${res.status}. Fill the fields by hand.` };
-    const html = (await res.text()).slice(0, 400_000);
+    const html = (await res.text()).slice(0, 2_000_000);
     const title = meta(html, "og:title") || decode(html.match(/<title[^>]*>([^<]*)<\/title>/i)?.[1]?.trim() ?? "");
     let image = meta(html, "og:image") || meta(html, "twitter:image");
     if (image) image = new URL(image, url).toString();
+    const site = meta(html, "og:site_name") || url.hostname.replace(/^www\./, "");
+    const known = articleParagraphs(html);
+    const body = (known.length ? known.join("\n\n") : readableText(html)).slice(0, 100_000);
     return {
       title,
+      body,
+      credit: body ? `Originally published by ${site}.` : "",
       dek: meta(html, "og:description") || meta(html, "description"),
       image_url: image,
       source_name: meta(html, "og:site_name"),

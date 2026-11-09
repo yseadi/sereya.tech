@@ -4,6 +4,7 @@ import { requireOwner } from "@/lib/auth";
 import { timeAgo } from "@/lib/format";
 import { commentCount, likeCount } from "@/lib/posts";
 import type { PostWithCounts } from "@/lib/types";
+import { StudioNav } from "./StudioNav";
 
 export const metadata = { title: "Studio" };
 export const dynamic = "force-dynamic";
@@ -15,14 +16,16 @@ export default async function StudioPage({ searchParams }: { searchParams: Promi
     .from("posts")
     .select("*, post_likes(count), comments(count)")
     .order("updated_at", { ascending: false })
+    .in("status", ["draft", "published"])
     .limit(200);
   if (show === "drafts") q = q.eq("status", "draft");
   if (show === "notake") q = q.eq("take", "");
   const { data } = await q;
   const posts = (data ?? []) as unknown as PostWithCounts[];
-  const [{ count: members }, { count: talk }] = await Promise.all([
+  const [{ count: members }, { count: talk }, { count: caught }] = await Promise.all([
     supabase.from("profiles").select("id", { count: "exact", head: true }),
     supabase.from("comments").select("id", { count: "exact", head: true }),
+    supabase.from("posts").select("id", { count: "exact", head: true }).eq("status", "caught"),
   ]);
 
   return (
@@ -37,6 +40,7 @@ export default async function StudioPage({ searchParams }: { searchParams: Promi
         </div>
         <Link href="/studio/new" className="btn">New signal</Link>
       </div>
+      <StudioNav current="desk" catchCount={caught ?? 0} />
       <nav className="chips" aria-label="Show" style={{ marginBottom: 18 }}>
         <Link href="/studio" className="chip" aria-current={!show ? "true" : undefined}>Everything</Link>
         <Link href="/studio?show=drafts" className="chip" aria-current={show === "drafts" ? "true" : undefined}>Drafts</Link>
@@ -62,6 +66,7 @@ export default async function StudioPage({ searchParams }: { searchParams: Promi
                   <Link href={`/studio/${p.id}`} style={{ fontWeight: 600, textDecoration: "none" }}>{p.title}</Link>
                   <div className="muted" style={{ fontSize: 13 }}>
                     {p.source_name}
+                    {p.origin === "concha" ? " · by Concha" : ""}
                     {p.is_pearl ? " · Pearl" : ""}
                     {p.status === "published" ? (
                       <>

@@ -34,8 +34,14 @@ export function PostForm({ post, justSaved }: { post?: Post; justSaved?: boolean
       set("dek", p.dek);
       set("source_name", p.source_name);
       set("byline", p.byline);
+      set("body", p.body);
+      set("credit", p.credit);
       if (p.image_url && !image) setImage(p.image_url);
-      setFetchMsg("Filled the empty fields from the source. Check them before publishing.");
+      setFetchMsg(
+        p.body
+          ? "Filled the empty fields, full text included. Check them before publishing."
+          : "Filled the empty fields. The full text didn’t come (paywall or a page Concha can’t read): paste it by hand.",
+      );
     });
   }
 
@@ -72,9 +78,20 @@ export function PostForm({ post, justSaved }: { post?: Post; justSaved?: boolean
         </div>
 
         <div className="field full">
+          <label htmlFor="body">Full text</label>
+          <textarea id="body" name="body" className="textarea" style={{ minHeight: 260 }} defaultValue={post?.body ?? ""} placeholder="The whole piece, for people to read here. Leave a blank line between paragraphs. Start a line with ## for a subtitle." />
+          <span className="hint">“Fill from link” brings it from the source. Check that it starts and ends in the right place. Empty: the post shows the summary and a link.</span>
+        </div>
+
+        <div className="field full">
+          <label htmlFor="credit">Credit line</label>
+          <input id="credit" name="credit" className="input" defaultValue={post?.credit ?? ""} placeholder="e.g. Republished from Rest of World under CC BY-NC-ND 4.0." />
+        </div>
+
+        <div className="field full">
           <label htmlFor="take">Your take</label>
           <textarea id="take" name="take" className="textarea" style={{ minHeight: 180, background: "#f5f3fa" }} defaultValue={post?.take} placeholder="Why this matters, what it signals, where it could go." />
-          <span className="hint">Shows in its own pearly card, signed by you.</span>
+          <span className="hint">Shows at the end of the post, in its own pearly card, signed by you.</span>
         </div>
 
         <div className="field">
