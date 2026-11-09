@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { firstName, getViewer } from "@/lib/auth";
-import { PLANS } from "@/lib/plans";
 
 export const metadata = { title: "Welcome" };
 
@@ -10,7 +9,6 @@ export default async function WelcomePage() {
   if (!user) redirect("/login");
   if (!profile?.onboarded) redirect("/join");
   const name = firstName(profile);
-  const plan = profile.plan_interest ? PLANS[profile.plan_interest].name : null;
   return (
     <div className="wrap">
       <section className="band" style={{ gridTemplateColumns: "1fr" }}>
@@ -20,7 +18,6 @@ export default async function WelcomePage() {
             <h1>{name ? `You are in, ${name}.` : "You are in."}</h1>
             <p>
               Here is what arrives, and when.
-              {plan ? ` You picked ${plan}: thank you, that helps Yasmim shape the plans.` : ""}
             </p>
           </div>
           <div className="rhythm">

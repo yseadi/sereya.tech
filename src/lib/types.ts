@@ -1,6 +1,5 @@
 export type CategoryKey = "res" | "zei" | "bio" | "art" | "geo";
 export type Format = "News" | "Essay" | "Report";
-export type Plan = "free" | "member" | "founding";
 
 export interface Profile {
   id: string;
@@ -9,8 +8,6 @@ export interface Profile {
   role: "owner" | "member";
   categories: CategoryKey[];
   regions: string[];
-  plan_interest: Plan | null;
-  billing_interest: "month" | "year" | null;
   onboarded: boolean;
   created_at: string;
 }

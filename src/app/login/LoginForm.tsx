@@ -26,7 +26,7 @@ export function LoginForm({ next, linkError }: { next: string; linkError: boolea
       </div>
       <Submit pendingText="Logging in…">Log in</Submit>
       <p className="muted" style={{ fontSize: 15 }}>
-        New here? <Link href="/join">Join Sereya</Link>, it starts free.
+        New here? <Link href="/join">Join Sereya</Link>, it’s free.
       </p>
     </form>
   );

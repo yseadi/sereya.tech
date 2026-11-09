@@ -104,7 +104,7 @@ export default async function PostPage({ params }: Params) {
       ) : (
         <section className="card" style={{ padding: 28, marginTop: 48, display: "flex", flexDirection: "column", gap: 12 }}>
           <h2 style={{ fontSize: 24, fontWeight: 500 }}>Join the conversation</h2>
-          <p className="muted">Members like signals and talk about them, forum style. It starts free.</p>
+          <p className="muted">Members like signals and talk about them, forum style. It’s free.</p>
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
             <Link href="/join" className="btn">Join Sereya</Link>
             <Link href={`/login?next=/signals/${post.slug}`} className="btn ghost">Log in</Link>

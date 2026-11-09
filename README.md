@@ -11,10 +11,10 @@ forum-style conversations on every signal.
 | Who | What they can do |
 | --- | --- |
 | Visitor | See Home and the Signals (summary, source, Yasmim's take). Join or log in. |
-| Member | Join with an invite code, pick categories, regions and the plan they would choose (nobody pays in the beta). Get a Home filtered by their categories, like signals, comment, reply to each other, like comments, edit or delete their own comments. Community page with the latest comments and the most talked-about signals. Settings for name, bio, categories, regions. |
+| Member | Join with an invite code, pick categories and regions. Get a Home filtered by their categories, like signals, comment, reply to each other, like comments, edit or delete their own comments. Community page with the latest comments and the most talked-about signals. Settings for name, bio, categories, regions. |
 | Owner (Yasmim) | Everything above, plus the **Studio** tab: create, edit, publish, unpublish and delete signals, "Fill from link" (reads the source's title, summary and photo), mark the Pearl of the day, see members, likes and comments. On every post a dark owner bar lets her write or edit **her take** right there. Her comments carry a "Sereya" badge and she can delete any comment. |
 
-Not in the V1 yet: Trends, Sonar, Readings/Carta, payments, Concha (the crawler) feeding signals automatically, image upload (photos are links for now), Google login.
+Not in the V1 yet: Trends, Sonar, Readings/Carta, plans and payments (everything is free for now), Concha (the crawler) feeding signals automatically, image upload (photos are links for now), Google login.
 
 ## How it is built
 
@@ -63,7 +63,6 @@ Every time a change is merged into `main`, Vercel publishes it by itself. Later,
 
 - **Forgot password emails**: Supabase's built-in email only reaches members of the Supabase team. Until a free email sender (e.g. Resend) is connected under Authentication → Emails → SMTP, a friend who forgets her password can be removed in Authentication → Users and join again.
 - Supabase's free plan pauses a project after 7 days with no visits. Opening the dashboard wakes it up.
-- Plan prices on the join screen are the suggested ones, not validated. The choice each friend makes is saved in `profiles.plan_interest`, useful to read later.
 
 ## Running it on a computer
 

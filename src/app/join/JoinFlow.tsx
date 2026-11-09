@@ -5,11 +5,10 @@ import { useRouter } from "next/navigation";
 import { useActionState, useEffect, useState, useTransition } from "react";
 import { createAccount, saveUniverse, type FormState } from "../auth/actions";
 import { CATEGORIES, CATEGORY_KEYS, REGIONS } from "@/lib/categories";
-import { PLANS } from "@/lib/plans";
-import type { CategoryKey, Plan } from "@/lib/types";
+import type { CategoryKey } from "@/lib/types";
 import { Submit } from "@/components/Submit";
 
-const LABELS = ["Account", "Your universe", "Plan", "Welcome"];
+const LABELS = ["Account", "Your universe", "Welcome"];
 
 type Props = {
   signedIn: boolean;
@@ -24,8 +23,6 @@ export function JoinFlow({ signedIn, name, inviteRequired, initialCategories, in
   const [step, setStep] = useState(signedIn ? 2 : 1);
   const [cats, setCats] = useState<CategoryKey[]>(initialCategories);
   const [regions, setRegions] = useState<string[]>(initialRegions);
-  const [plan, setPlan] = useState<Plan>("member");
-  const [billing, setBilling] = useState<"month" | "year">("year");
   const [error, setError] = useState<string | null>(null);
   const [saving, startSaving] = useTransition();
   const [accountState, accountAction] = useActionState<FormState, FormData>(createAccount, {});
@@ -38,17 +35,13 @@ export function JoinFlow({ signedIn, name, inviteRequired, initialCategories, in
   }, [accountState.ok, router]);
 
   const toggle = <T,>(list: T[], v: T) => (list.includes(v) ? list.filter((x) => x !== v) : [...list, v]);
-  const year = billing === "year";
 
   function next() {
     setError(null);
     if (step === 2) {
       if (cats.length === 0) return setError("Pick at least one category to start your feed.");
-      return setStep(3);
-    }
-    if (step === 3) {
       startSaving(async () => {
-        const res = await saveUniverse({ categories: cats, regions, plan, billing });
+        const res = await saveUniverse({ categories: cats, regions });
         if (res.error) return setError(res.error);
         router.push("/welcome");
       });
@@ -75,7 +68,7 @@ export function JoinFlow({ signedIn, name, inviteRequired, initialCategories, in
           <section className="intro band" style={{ display: "flex", flexDirection: "column" }}>
             <p className="eyebrow">Join Sereya</p>
             <h1>Create your account</h1>
-            <p>It starts free. You choose a plan in step 3, and during the beta nobody pays.</p>
+            <p>Sereya is free. Pick what you want to follow in the next step.</p>
           </section>
           <form action={accountAction} className="card" noValidate>
             {accountState.error && <p className="error" role="alert">{accountState.error}</p>}
@@ -153,54 +146,10 @@ export function JoinFlow({ signedIn, name, inviteRequired, initialCategories, in
         </section>
       )}
 
-      {step === 3 && (
-        <section className="card" style={{ padding: "32px 28px", display: "flex", flexDirection: "column", gap: 22 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", gap: 16, flexWrap: "wrap", alignItems: "end" }}>
-            <div>
-              <h1 style={{ fontSize: 34, fontWeight: 500 }}>Choose your plan</h1>
-              <p className="muted" style={{ marginTop: 8 }}>
-                Yasmim’s writing is always free. Members see the whole platform.
-              </p>
-            </div>
-            <div className="toggle" role="group" aria-label="Billing">
-              <button type="button" aria-pressed={!year} onClick={() => setBilling("month")}>Monthly</button>
-              <button type="button" aria-pressed={year} onClick={() => setBilling("year")}>Yearly · 2 months free</button>
-            </div>
-          </div>
-          <p className="notice">
-            Beta: everything is open and nobody pays while we test. Pick the plan you would choose, it helps Yasmim set
-            the prices.
-          </p>
-          <div className="pick-grid">
-            {(Object.keys(PLANS) as Plan[]).map((k) => {
-              const p = PLANS[k];
-              return (
-                <button key={k} type="button" className="plan" aria-pressed={plan === k} onClick={() => setPlan(k)}>
-                  <span style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                    <span className="radio" />
-                    <strong style={{ fontWeight: 600 }}>{p.name}</strong>
-                  </span>
-                  <span>
-                    <span className="price">{p.price(year)}</span> <span className="muted">{p.per(year)}</span>
-                  </span>
-                  <span className="muted" style={{ fontSize: 15 }}>{p.desc}</span>
-                </button>
-              );
-            })}
-          </div>
-          <p className="hint">Suggested prices, still to be validated by Yasmim.</p>
-        </section>
-      )}
-
-      {(step === 2 || step === 3) && (
+      {step === 2 && (
         <div style={{ display: "flex", gap: 12, marginTop: 20, alignItems: "center", flexWrap: "wrap" }}>
-          {step === 3 && (
-            <button type="button" className="btn ghost" onClick={() => setStep(2)}>
-              Back
-            </button>
-          )}
           <button type="button" className="btn" onClick={next} disabled={saving}>
-            {saving ? "Saving…" : step === 3 ? (plan === "free" ? "Join for free" : "Join") : "Continue"}
+            {saving ? "Saving…" : "Join"}
           </button>
           {error && <p className="error" role="alert">{error}</p>}
         </div>

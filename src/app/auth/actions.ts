@@ -70,12 +70,10 @@ export async function createAccount(_: FormState, fd: FormData): Promise<FormSta
   return { ok: true };
 }
 
-/** Steps 2 and 3 of joining (and Settings): what to follow and the plan she would pick. */
+/** Step 2 of joining: what to follow. */
 export async function saveUniverse(input: {
   categories: string[];
   regions: string[];
-  plan?: string;
-  billing?: string;
 }): Promise<FormState> {
   const supabase = await createClient();
   const {
@@ -86,8 +84,6 @@ export async function saveUniverse(input: {
   const regions = input.regions.filter((r) => REGIONS.includes(r));
   if (categories.length === 0) return { error: "Pick at least one category." };
   const update: Record<string, unknown> = { categories, regions, onboarded: true };
-  if (input.plan && ["free", "member", "founding"].includes(input.plan)) update.plan_interest = input.plan;
-  if (input.billing && ["month", "year"].includes(input.billing)) update.billing_interest = input.billing;
   const { error } = await supabase.from("profiles").update(update).eq("id", user.id);
   if (error) return { error: "We couldn’t save that. Try again." };
   return { ok: true };
