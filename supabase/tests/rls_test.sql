@@ -78,5 +78,41 @@ end $$;
 select pg_temp.expect_fail($q$insert into public.comments (post_id, body) values ('00000000-0000-0000-0000-0000000000d1', 'oi')$q$, 'comment on draft');
 reset role;
 
+-- Concha: only the owner sees the catch, the sources and the glossary; everyone sees run stats.
+insert into public.posts (id, slug, title, category, status, origin, fit) values ('00000000-0000-0000-0000-0000000000c1', 'pego', 'Pego pela Concha', 'zei', 'caught', 'concha', 70);
+insert into public.concha_runs (trigger, sources_read, kept) values ('schedule', 6, 3);
+set local role anon;
+do $$ begin
+  if exists (select 1 from public.posts where slug='pego') then raise exception 'anon sees caught'; end if;
+  if (select count(*) from public.concha_runs) <> 1 then raise exception 'anon should see run stats'; end if;
+end $$;
+select pg_temp.expect_fail('select * from public.sources', 'anon reads sources');
+select pg_temp.expect_fail($q$insert into public.concha_runs (trigger) values ('manual')$q$, 'anon writes run');
+reset role;
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-0000-0000-00000000000b';
+do $$ begin
+  if exists (select 1 from public.posts where slug='pego') then raise exception 'member sees caught'; end if;
+  if exists (select 1 from public.sources) or exists (select 1 from public.concha_terms) or exists (select 1 from public.settings) then
+    raise exception 'member sees Concha settings';
+  end if;
+end $$;
+select pg_temp.expect_fail($q$insert into public.sources (name, feed_url) values ('x','https://x')$q$, 'member adds source');
+select pg_temp.expect_fail($q$insert into public.comments (post_id, body) values ('00000000-0000-0000-0000-0000000000c1', 'oi')$q$, 'comment on caught');
+reset role;
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-0000-0000-00000000000a';
+do $$ begin
+  if not exists (select 1 from public.posts where slug='pego') then raise exception 'owner cannot see catch'; end if;
+  if (select count(*) from public.sources) < 6 then raise exception 'owner cannot see sources'; end if;
+end $$;
+update public.posts set status = 'published' where slug = 'pego';
+insert into public.concha_terms (kind, term) values ('glossary', 'teste');
+update public.settings set value = 'true' where key = 'concha_autopublish';
+do $$ begin
+  if (select published_at from public.posts where slug='pego') is null then raise exception 'publishing caught has no date'; end if;
+end $$;
+reset role;
+
 select 'ALL RLS CHECKS PASSED' as result;
 rollback;

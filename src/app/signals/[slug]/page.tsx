@@ -18,8 +18,16 @@ type Params = { params: Promise<{ slug: string }> };
 export async function generateMetadata({ params }: Params) {
   const { slug } = await params;
   const { supabase } = await getViewer();
-  const { data } = await supabase.from("posts").select("title, dek").eq("slug", slug).maybeSingle();
-  return data ? { title: data.title, description: data.dek } : { title: "Signal" };
+  const { data } = await supabase.from("posts").select("title, dek, image_url").eq("slug", slug).maybeSingle();
+  if (!data) return { title: "Signal" };
+  const description = data.dek.length > 200 ? data.dek.slice(0, 197) + "…" : data.dek;
+  const images = data.image_url ? [{ url: data.image_url }] : undefined;
+  return {
+    title: data.title,
+    description,
+    openGraph: { title: data.title, description, type: "article", url: `/signals/${slug}`, ...(images ? { images } : {}) },
+    twitter: { card: "summary_large_image", title: data.title, description, ...(images ? { images: images.map((i) => i.url) } : {}) },
+  };
 }
 
 export default async function PostPage({ params }: Params) {
@@ -30,6 +38,10 @@ export default async function PostPage({ params }: Params) {
   if (!post) notFound();
 
   const isOwner = profile?.role === "owner";
+  const blocks = (post.body ?? "")
+    .split(/\n{2,}/)
+    .map((b) => b.trim())
+    .filter(Boolean);
   let liked = false;
   let comments: Awaited<ReturnType<typeof getComments>> = [];
   if (user) {
@@ -43,7 +55,7 @@ export default async function PostPage({ params }: Params) {
 
   return (
     <div className="wrap narrow">
-      {isOwner && <OwnerTools id={post.id} slug={post.slug} take={post.take} status={post.status} />}
+      {isOwner && <OwnerTools id={post.id} slug={post.slug} take={post.take} status={post.status} hasBody={!!post.body} />}
       <article>
         <header className="post-head">
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
@@ -74,6 +86,30 @@ export default async function PostPage({ params }: Params) {
           </div>
         )}
 
+        <div className="post-body">
+          {blocks.length > 0 ? (
+            blocks.map((b, i) =>
+              b.startsWith("## ") ? <h2 key={i}>{b.slice(3)}</h2> : <p key={i}>{b}</p>,
+            )
+          ) : post.dek ? (
+            <p className="muted" style={{ fontStyle: "italic" }}>
+              This is a summary. The full piece lives at {post.source_name || "the source"}.
+            </p>
+          ) : null}
+        </div>
+
+        {(post.credit || post.source_url) && (
+          <p className="post-credit">
+            {post.credit ? `${post.credit} ` : ""}
+            {post.source_url && (
+              <>
+                Original at{" "}
+                <a href={post.source_url} target="_blank" rel="noopener noreferrer">{post.source_name || "the source"} ↗</a>
+              </>
+            )}
+          </p>
+        )}
+
         {post.take && (
           <section className="take" aria-label="Yasmim’s take">
             <div className="who">
@@ -93,7 +129,7 @@ export default async function PostPage({ params }: Params) {
           ) : null}
           {post.source_url && (
             <a href={post.source_url} target="_blank" rel="noopener noreferrer" className="btn ghost small" style={{ height: 44 }}>
-              Read on {post.source_name || "the source"} ↗
+              {blocks.length ? "Original" : "Read it all"} on {post.source_name || "the source"} ↗
             </a>
           )}
         </div>

@@ -51,6 +51,8 @@ export async function savePost(_: StudioState, fd: FormData): Promise<StudioStat
     image_url,
     dek: str(fd, "dek"),
     take: str(fd, "take"),
+    body: str(fd, "body").replace(/\r\n/g, "\n").slice(0, 100000),
+    credit: str(fd, "credit").slice(0, 400),
     source_name: str(fd, "source_name"),
     byline: str(fd, "byline"),
     tags: str(fd, "tags")
