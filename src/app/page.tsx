@@ -67,7 +67,7 @@ export default async function Home() {
                 <CategoryPill category={pearl.category} />
                 <SourceMark name={pearl.source_name} />
               </div>
-              <h2>{pearl.title}</h2>
+              <h2><span className="t">{pearl.title}</span></h2>
               {pearl.dek && <p className="muted">{pearl.dek}</p>}
               {pearl.take && (
                 <div className="take" style={{ margin: 0, padding: "16px 18px" }}>

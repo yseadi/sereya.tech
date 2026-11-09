@@ -342,13 +342,14 @@ main > .wrap > *:nth-child(n + 5) { animation-delay: 0.2s; }
 .post-card .ph img, .pearl-day .ph img { transition: transform 0.8s cubic-bezier(.2, .7, .2, 1), filter 0.6s; }
 .post-card:hover .ph img, .pearl-day:hover .ph img { transform: scale(1.06); filter: saturate(1.08); }
 /* Card titles: a pearly highlight rises behind the words and they turn white. */
-.post-card h3, .pearl-day h2 {
-  display: inline; padding: 0 4px; margin: 0 -4px; border-radius: 6px;
+.post-card h3, .pearl-day h2 { line-height: 1.6; }
+.post-card h3 .t, .pearl-day h2 .t {
+  display: inline; padding: 1px 3px; margin: 0 -3px; border-radius: 4px;
   -webkit-box-decoration-break: clone; box-decoration-break: clone;
   background: linear-gradient(100deg, #8a76c4, #6d8fd0 55%, #5aa596) no-repeat 0 100% / 100% 2px;
   transition: background-size 0.4s cubic-bezier(.2, .7, .2, 1), color 0.3s;
 }
-.post-card:hover h3, .pearl-day:hover h2 { background-size: 100% 100%; color: #ffffff; }
+.post-card:hover h3 .t, .pearl-day:hover h2 .t { background-size: 100% 100%; color: #ffffff; }
 .post-card .src-chip { transition: transform 0.35s; }
 .post-card:hover .src-chip { transform: translateY(-3px); }
 .pearl-day { position: relative; transition: transform 0.35s cubic-bezier(.2, .7, .2, 1), box-shadow 0.35s; }

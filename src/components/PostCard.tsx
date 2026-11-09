@@ -33,7 +33,7 @@ export function PostCard({ post, showCounts }: { post: PostWithCounts; showCount
           <CategoryPill category={post.category} />
           <span className="pill" style={{ background: "#f5f6f6", color: "#5a6567" }}>{post.format}</span>
         </div>
-        <h3>{post.title}</h3>
+        <h3><span className="t">{post.title}</span></h3>
         {post.dek && <p className="dek">{post.dek}</p>}
         {post.take && <p className="take-line">Yasmim: “{post.take}”</p>}
         <div className="meta">
