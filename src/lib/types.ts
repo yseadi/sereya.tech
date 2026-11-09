@@ -54,3 +54,14 @@ export interface CommentRow {
   author: { id: string; display_name: string; role: "owner" | "member" } | null;
   comment_likes: { user_id: string }[];
 }
+
+export interface GlossaryTerm {
+  id: string;
+  term: string;
+  slug: string;
+  aliases: string[];
+  definition: string;
+  category: CategoryKey | null;
+  published: boolean;
+  updated_at: string;
+}

@@ -469,3 +469,8 @@ main > .wrap > *:nth-child(n + 5) { animation-delay: 0.2s; }
   *, *::before, *::after { animation-duration: 0.001s !important; animation-iteration-count: 1 !important; transition-duration: 0.001s !important; }
   .bubbles { display: none; }
 }
+
+/* Glossary cards: text only, a pearly wash on top. */
+.term-card { background: linear-gradient(180deg, #fbf9fe 0%, #ffffff 40%); }
+.term-card .body { padding-top: 24px; }
+.term-card .dek { -webkit-line-clamp: 5; }

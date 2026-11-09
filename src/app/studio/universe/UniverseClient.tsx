@@ -171,7 +171,7 @@ export function TermChip({ term, never }: { term: { id: string; term: string; al
       title={term.aliases.length ? `Also: ${term.aliases.join(", ")}` : undefined}
       style={{ background: never ? "#f5f6f6" : "#f5f3fa", color: never ? "#3c4648" : "#4a3a8c", display: "inline-flex", gap: 6, alignItems: "center", padding: "6px 6px 6px 12px" }}
     >
-      {term.term}
+      {never ? term.term : <a href={`/studio/glossary/${term.id}`} style={{ color: "inherit", textDecoration: "none" }}>{term.term}</a>}
       {term.aliases.length > 0 && <span style={{ opacity: 0.6, fontSize: 12 }}>+{term.aliases.length}</span>}
       <button
         type="button"

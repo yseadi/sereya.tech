@@ -27,3 +27,6 @@ export const IconReply = ({ size = 16 }: P) => (
 export const IconComment = ({ size = 16 }: P) => (
   <svg {...base(size)}><path d="M4 5h16v11H9l-5 4z" /></svg>
 );
+export const IconGlossary = ({ size = 20 }: P) => (
+  <svg {...base(size)}><path d="M5 4.5A1.5 1.5 0 0 1 6.5 3H19v15H6.5A1.5 1.5 0 0 0 5 19.5z" /><path d="M5 19.5A1.5 1.5 0 0 0 6.5 21H19" /><circle cx="12" cy="10" r="2.5" /></svg>
+);
