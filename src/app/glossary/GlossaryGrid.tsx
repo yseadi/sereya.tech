@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { plainText } from "@/lib/richtext";
 import { useMemo, useState } from "react";
 import { CATEGORIES, CATEGORY_KEYS } from "@/lib/categories";
 import type { CategoryKey, GlossaryTerm } from "@/lib/types";
@@ -56,7 +57,7 @@ export function GlossaryGrid({ terms }: { terms: GlossaryTerm[] }) {
               )}
               <h3><span className="t">{t.term}</span></h3>
               {t.aliases.length > 0 && <p className="muted" style={{ fontSize: 13 }}>Also: {t.aliases.slice(0, 4).join(", ")}</p>}
-              <p className="dek">{t.definition.replace(/^##\s*/gm, "")}</p>
+              <p className="dek">{plainText(t.definition)}</p>
             </div>
           </Link>
         ))}

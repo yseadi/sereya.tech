@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { RichText } from "@/lib/richtext";
 import { CategoryPill } from "@/components/CategoryPill";
 import { Pearl } from "@/components/Pearl";
 import { SourceMark } from "@/components/SourceMark";
@@ -38,10 +39,6 @@ export default async function PostPage({ params }: Params) {
   if (!post) notFound();
 
   const isOwner = profile?.role === "owner";
-  const blocks = (post.body ?? "")
-    .split(/\n{2,}/)
-    .map((b) => b.trim())
-    .filter(Boolean);
   let liked = false;
   let comments: Awaited<ReturnType<typeof getComments>> = [];
   if (user) {
@@ -59,7 +56,7 @@ export default async function PostPage({ params }: Params) {
       <article>
         <header className="post-head">
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
-            <CategoryPill category={post.category} />
+            <CategoryPill category={post.category} explain />
             <span className="pill" style={{ background: "#ffffff", color: "#5a6567", border: "1px solid #eceeee" }}>{post.format}</span>
             {post.is_pearl && <span className="pill" style={{ background: "#f1ecfb", color: "#5b4a9e" }}>Pearl of the day</span>}
           </div>
@@ -87,10 +84,8 @@ export default async function PostPage({ params }: Params) {
         )}
 
         <div className="post-body">
-          {blocks.length > 0 ? (
-            blocks.map((b, i) =>
-              b.startsWith("## ") ? <h2 key={i}>{b.slice(3)}</h2> : <p key={i}>{b}</p>,
-            )
+          {post.body?.trim() ? (
+            <RichText text={post.body} />
           ) : post.dek ? (
             <p className="muted" style={{ fontStyle: "italic" }}>
               This is a summary. The full piece lives at {post.source_name || "the source"}.
@@ -129,7 +124,7 @@ export default async function PostPage({ params }: Params) {
           ) : null}
           {post.source_url && (
             <a href={post.source_url} target="_blank" rel="noopener noreferrer" className="btn ghost small" style={{ height: 44 }}>
-              {blocks.length ? "Original" : "Read it all"} on {post.source_name || "the source"} ↗
+              {post.body?.trim() ? "Original" : "Read it all"} on {post.source_name || "the source"} ↗
             </a>
           )}
         </div>

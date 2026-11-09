@@ -5,6 +5,7 @@ import { PostCard } from "@/components/PostCard";
 import { Pearl } from "@/components/Pearl";
 import { getViewer } from "@/lib/auth";
 import { postSelect } from "@/lib/posts";
+import { plainText, RichText } from "@/lib/richtext";
 import type { GlossaryTerm, PostWithCounts } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -26,7 +27,7 @@ export async function generateMetadata({ params }: Params) {
   const { slug } = await params;
   const { term } = await load(slug);
   if (!term) return { title: "Glossary" };
-  const description = term.definition.replace(/\s+/g, " ").slice(0, 190);
+  const description = plainText(term.definition).replace(/\s+/g, " ").slice(0, 190);
   return { title: `${term.term} · Glossary`, description, openGraph: { title: term.term, description } };
 }
 
@@ -46,7 +47,6 @@ export default async function TermPage({ params }: Params) {
     .order("published_at", { ascending: false })
     .limit(6);
   const posts = (related ?? []) as unknown as PostWithCounts[];
-  const blocks = term.definition.split(/\n{2,}/).map((b) => b.trim()).filter(Boolean);
 
   return (
     <div className="wrap narrow">
@@ -59,7 +59,7 @@ export default async function TermPage({ params }: Params) {
       <article>
         <header className="post-head">
           <Link href="/glossary" className="eyebrow" style={{ textDecoration: "none" }}>← Glossary</Link>
-          {term.category && <CategoryPill category={term.category} />}
+          {term.category && <CategoryPill category={term.category} explain />}
           <h1>{term.term}</h1>
           {term.aliases.length > 0 && <p className="muted">Also: {term.aliases.join(", ")}</p>}
         </header>
@@ -72,7 +72,7 @@ export default async function TermPage({ params }: Params) {
             </div>
           </div>
           <div className="post-body" style={{ margin: 0 }}>
-            {blocks.length ? blocks.map((b, i) => (b.startsWith("## ") ? <h2 key={i}>{b.slice(3)}</h2> : <p key={i}>{b}</p>)) : <p className="muted">Yasmim is still writing this card.</p>}
+            <RichText text={term.definition} empty={<p className="muted">Yasmim is still writing this card.</p>} />
           </div>
         </div>
       </article>

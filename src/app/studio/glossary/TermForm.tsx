@@ -6,6 +6,7 @@ import { CATEGORIES, CATEGORY_KEYS } from "@/lib/categories";
 import type { GlossaryTerm } from "@/lib/types";
 import { deleteTerm } from "../concha-actions";
 import { saveTerm, type TermState } from "../glossary-actions";
+import { RichEditor } from "@/components/RichEditor";
 
 export function TermForm({ term, justSaved }: { term?: GlossaryTerm; justSaved?: boolean }) {
   const [state, action, saving] = useActionState<TermState, FormData>(saveTerm, justSaved ? { saved: true } : {});
@@ -42,13 +43,13 @@ export function TermForm({ term, justSaved }: { term?: GlossaryTerm; justSaved?:
         </div>
         <div className="field full">
           <label htmlFor="definition">Your text</label>
-          <textarea
+          <RichEditor
             id="definition"
             name="definition"
-            className="textarea"
-            style={{ minHeight: 320, background: "#f5f3fa" }}
+            minHeight={320}
+            maxLength={40000}
             defaultValue={term?.definition}
-            placeholder="What it means, where it comes from, why it matters for Sereya. Leave a blank line between paragraphs. Start a line with ## for a subtitle."
+            placeholder="What it means, where it comes from, why it matters for Sereya. Leave a blank line between paragraphs. Select words and use the bar for titles, bold, italic, links and quotes."
           />
         </div>
       </div>
