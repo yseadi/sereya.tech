@@ -90,13 +90,13 @@ export function articleParagraphs(html: string): string[] {
 }
 
 /**
- * Text good enough for Claude to summarize (never shown as is): the article
+ * The article's text: the article
  * container when we know it, else the JSON-LD articleBody, else every long
  * paragraph of the page outside menus and footers.
  */
 export function readableText(html: string): string {
-  const known = articleParagraphs(html).filter((p) => !p.startsWith("## ")).join("\n\n");
-  if (known.length >= 600) return known;
+  const known = articleParagraphs(html);
+  if (known.filter((p) => !p.startsWith("## ")).join("\n\n").length >= 600) return known.join("\n\n");
   for (const m of html.matchAll(/<script[^>]+application\/ld\+json[^>]*>([\s\S]*?)<\/script>/gi)) {
     const body = /"articleBody"\s*:\s*"((?:[^"\\]|\\.)*)"/.exec(m[1]);
     if (body) {

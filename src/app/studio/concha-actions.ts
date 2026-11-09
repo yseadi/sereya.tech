@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { fetchText } from "@/lib/concha/feed";
 import { runConcha } from "@/lib/concha/run";
 import { canSummarize, summarize } from "@/lib/concha/summarize";
-import { articleParagraphs, readableText } from "@/lib/concha/text";
+import { readableText } from "@/lib/concha/text";
 
 type Result = { error?: string; message?: string };
 
@@ -153,8 +153,7 @@ export async function pullFullText(id: string): Promise<Result> {
   if (!post?.source_url) return { error: "This post has no source link to read." };
   try {
     const html = await fetchText(post.source_url, 10000);
-    const known = articleParagraphs(html);
-    const body = (known.length ? known.join("\n\n") : readableText(html)).slice(0, 100000);
+    const body = readableText(html).slice(0, 100000);
     if (body.length < 400) return { error: "The text didn’t come (paywall or a page Concha can’t read). Paste it in Edit." };
     const { error } = await supabase
       .from("posts")

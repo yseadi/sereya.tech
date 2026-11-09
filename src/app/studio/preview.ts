@@ -1,6 +1,6 @@
 "use server";
 
-import { articleParagraphs, readableText } from "@/lib/concha/text";
+import { readableText } from "@/lib/concha/text";
 import { createClient } from "@/lib/supabase/server";
 
 export type LinkPreview = { title?: string; dek?: string; image_url?: string; source_name?: string; byline?: string; body?: string; credit?: string; error?: string };
@@ -60,8 +60,7 @@ export async function fetchLinkPreview(rawUrl: string): Promise<LinkPreview> {
     let image = meta(html, "og:image") || meta(html, "twitter:image");
     if (image) image = new URL(image, url).toString();
     const site = meta(html, "og:site_name") || url.hostname.replace(/^www\./, "");
-    const known = articleParagraphs(html);
-    const body = (known.length ? known.join("\n\n") : readableText(html)).slice(0, 100_000);
+    const body = readableText(html).slice(0, 100_000);
     return {
       title,
       body,
