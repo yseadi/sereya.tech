@@ -3,11 +3,13 @@ import { redirect } from "next/navigation";
 import { Avatar } from "@/components/Avatar";
 import { CategoryPill } from "@/components/CategoryPill";
 import { Pearl } from "@/components/Pearl";
+import { HomePulse } from "@/components/HomePulse";
 import { PostCard } from "@/components/PostCard";
 import { SourceMark } from "@/components/SourceMark";
 import { firstName, getViewer } from "@/lib/auth";
 import { greeting, longDate, timeAgo } from "@/lib/format";
 import { getPearl, listPosts, recentComments } from "@/lib/posts";
+import { getPulse } from "@/lib/pulse";
 
 export const dynamic = "force-dynamic";
 
@@ -16,10 +18,11 @@ export default async function Home() {
   if (user && profile && !profile.onboarded) redirect("/join");
   const signedIn = !!user;
 
-  const [pearl, feed, talk] = await Promise.all([
+  const [pearl, feed, talk, pulse] = await Promise.all([
     getPearl(supabase, signedIn),
     listPosts(supabase, { signedIn, categories: profile?.categories, limit: 9 }),
     signedIn ? recentComments(supabase, 4) : Promise.resolve([]),
+    getPulse(supabase),
   ]);
   const name = firstName(profile);
 
@@ -94,6 +97,8 @@ export default async function Home() {
       ) : (
         <p className="muted">No signals here yet. Concha is still listening.</p>
       )}
+
+      <HomePulse pulse={pulse} />
 
       {signedIn && talk.length > 0 && (
         <>

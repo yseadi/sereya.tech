@@ -623,6 +623,34 @@ a.tag-pill:hover { background: #f1ecfb; color: #4a3a8a; }
 .cluster-menu li { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 4px 0; }
 .cluster-menu form { display: flex; gap: 8px; }
 .cluster-menu form .input { height: 38px; font-size: 14px; }
+
+/* ---------- Home pulse: tags moving, where signals come from ---------- */
+.pulse { display: grid; gap: 20px; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); margin-top: 48px; }
+.pulse-card { padding: 26px 26px 22px; }
+.pulse-card h2 { font-size: 24px; font-weight: 500; }
+.pulse-card > .muted { font-size: 15px; margin-top: 6px; }
+.pulse-card .pulse-note { font-size: 13px; margin-top: 14px; }
+.bars { list-style: none; margin: 18px 0 0; padding: 0; display: grid; gap: 2px; }
+.bar-row {
+  display: grid; grid-template-columns: minmax(96px, 9.5rem) 1fr 2.2rem 3rem; align-items: center; gap: 12px;
+  padding: 7px 8px; margin: 0 -8px; border-radius: 12px; color: var(--ink); text-decoration: none; font-size: 15px;
+}
+a.bar-row:hover { background: var(--lilac-soft); }
+.bar-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--ink-2); }
+.bar-track { height: 10px; border-radius: 999px; background: var(--ground); overflow: hidden; }
+.bar-fill { display: block; height: 100%; min-width: 6px; border-radius: 999px; background: var(--lilac-line); transition: width 0.6s ease; }
+.bar-fill.region { background: #9dc0ec; }
+a.bar-row:hover .bar-fill { background: #9f88e4; }
+.bar-value { text-align: right; font-variant-numeric: tabular-nums; font-weight: 500; }
+.bar-delta { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.bar-delta.up { color: var(--lilac-deep); font-weight: 500; }
+.pulse .bar-row:not(a) { grid-template-columns: minmax(96px, 9.5rem) 1fr 2.2rem; }
+@media (max-width: 520px) {
+  .pulse-card { padding: 22px 18px 18px; }
+  .bar-row { grid-template-columns: 6.5rem 1fr 2rem 2.6rem; gap: 8px; }
+  .pulse .bar-row:not(a) { grid-template-columns: 6.5rem 1fr 2rem; }
+}
+
 .cat-words-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 14px; }
 .cat-words { padding: 18px; display: flex; flex-direction: column; gap: 12px; }
 .cover-field { display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-start; }
