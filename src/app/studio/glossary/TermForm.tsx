@@ -49,7 +49,7 @@ export function TermForm({ term, justSaved, onDone, onCancel }: Props) {
           <input id="aliases" name="aliases" className="input" defaultValue={term?.aliases.join(", ")} placeholder="English versions, synonyms, comma separated" />
           <span className="hint">Concha also listens for these in the news.</span>
         </div>
-        <CoverField initial={term?.image_url ?? ""} />
+        <CoverField initial={term?.image_url ?? ""} position={term?.cover_position} />
         <div className="field full">
           <label htmlFor="definition">Your text</label>
           <RichEditor

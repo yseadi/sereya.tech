@@ -17,7 +17,7 @@ async function load(slug: string) {
   const { supabase, user, profile } = await getViewer();
   const { data } = await supabase
     .from("concha_terms")
-    .select("id, term, slug, aliases, definition, category, image_url, published, updated_at")
+    .select("id, term, slug, aliases, definition, category, image_url, cover_position, published, updated_at")
     .eq("kind", "glossary")
     .eq("slug", slug)
     .maybeSingle();
@@ -71,7 +71,7 @@ export default async function TermPage({ params }: Params) {
           <>
             <figure className="term-cover">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={term.image_url} alt="" />
+              <img src={term.image_url} alt="" style={{ objectPosition: term.cover_position || "center 50%" }} />
             </figure>
             {term.image_url.startsWith("https://upload.wikimedia.org/") && (
               <p className="term-cover-credit">Photo: Wikimedia Commons</p>

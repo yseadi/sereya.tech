@@ -66,6 +66,7 @@ export interface GlossaryTerm {
   definition: string;
   category: CategoryKey | null;
   image_url: string;
+  cover_position?: string;
   published: boolean;
   updated_at: string;
 }
