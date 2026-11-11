@@ -39,9 +39,11 @@ export async function Footer() {
           <Link href="/glossary">Glossary</Link>
           <Link href="/community">Community</Link>
           <Link href="/settings">Settings</Link>
+          <Link href="/privacy">Privacy</Link>
+          <Link href="/terms">Terms</Link>
         </nav>
         <div className="fine">
-          <span>© 2026 Sereya Tech • by Yasmim Seadi</span>
+          <span>© 2026 Sereya Tech • by <a href="https://yaseadi.netlify.app/" target="_blank" rel="noopener noreferrer">Yasmim Seadi</a></span>
           <span>Made in Brasil, reading the world.</span>
         </div>
       </div>

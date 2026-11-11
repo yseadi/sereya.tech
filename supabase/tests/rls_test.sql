@@ -20,9 +20,11 @@ end $$;
 grant execute on function pg_temp.expect_fail(text, text) to anon, authenticated;
 
 -- Anonymous visitor
+create temp table pub_count as select count(*) as n from public.posts where status = 'published';
+grant select on pub_count to anon, authenticated;
 set local role anon;
 do $$ begin
-  if (select count(*) from public.posts) <> 14 then raise exception 'anon should see 14 published posts'; end if;
+  if (select count(*) from public.posts) <> (select n from pub_count) then raise exception 'anon should see only published posts'; end if;
 end $$;
 select pg_temp.expect_fail('select * from public.comments', 'anon reads comments');
 select pg_temp.expect_fail($q$insert into public.posts (slug,title,category) values ('x','x','zei')$q$, 'anon writes post');
@@ -128,6 +130,49 @@ set local role anon;
 do $$ begin
   if not exists (select 1 from public.concha_terms where slug='termo-publico') then raise exception 'anon cannot read published glossary'; end if;
   if exists (select 1 from public.concha_terms where term in ('teste','proibido')) then raise exception 'anon sees draft or never term'; end if;
+end $$;
+reset role;
+
+-- Saved signals: each member sees only their own, and only published posts can be saved
+insert into public.posts (id, slug, title, category, status) values ('00000000-0000-0000-0000-0000000000e1', 'rascunho-salvo', 'Rascunho', 'zei', 'draft');
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-0000-0000-00000000000b';
+insert into public.saved_posts (post_id) select id from public.posts where status = 'published' limit 1;
+select pg_temp.expect_fail($q$insert into public.saved_posts (post_id) values ('00000000-0000-0000-0000-0000000000e1')$q$, 'save a draft');
+select pg_temp.expect_fail($q$insert into public.saved_posts (user_id, post_id) select '00000000-0000-0000-0000-00000000000a', id from public.posts where status = 'published' limit 1$q$, 'save for someone else');
+do $$ begin
+  if (select count(*) from public.saved_posts) <> 1 then raise exception 'member should see 1 saved'; end if;
+end $$;
+reset role;
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-0000-0000-00000000000a';
+do $$ begin
+  if exists (select 1 from public.saved_posts) then raise exception 'owner sees another member saves'; end if;
+end $$;
+reset role;
+set local role anon;
+select pg_temp.expect_fail('select * from public.saved_posts', 'anon reads saves');
+reset role;
+
+-- Clusters: only the owner sees and edits them; a link shows one cluster with only published signals
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-0000-0000-00000000000a';
+insert into public.clusters (id, slug, name) values ('00000000-0000-0000-0000-0000000000f1', 'isabela-abc123', 'Isabela');
+insert into public.cluster_posts (cluster_id, post_id) select '00000000-0000-0000-0000-0000000000f1', id from public.posts where status = 'published' limit 2;
+insert into public.cluster_posts (cluster_id, post_id) values ('00000000-0000-0000-0000-0000000000f1', '00000000-0000-0000-0000-0000000000e1');
+reset role;
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-0000-0000-00000000000b';
+do $$ begin
+  if exists (select 1 from public.clusters) then raise exception 'member lists clusters'; end if;
+end $$;
+select pg_temp.expect_fail($q$insert into public.clusters (slug, name) values ('member-x1', 'x')$q$, 'member creates cluster');
+reset role;
+set local role anon;
+select pg_temp.expect_fail('select * from public.clusters', 'anon lists clusters');
+do $$ begin
+  if jsonb_array_length(public.cluster_by_slug('isabela-abc123') -> 'post_ids') <> 2 then raise exception 'cluster link should show 2 published signals'; end if;
+  if public.cluster_by_slug('nao-existe') is not null then raise exception 'unknown cluster returned'; end if;
 end $$;
 reset role;
 

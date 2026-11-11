@@ -4,6 +4,7 @@ import { CategoryPill } from "@/components/CategoryPill";
 import { PostCard } from "@/components/PostCard";
 import { Pearl } from "@/components/Pearl";
 import { getViewer } from "@/lib/auth";
+import { TermTools } from "../GlossaryAdmin";
 import { postSelect } from "@/lib/posts";
 import { plainText, RichText } from "@/lib/richtext";
 import type { GlossaryTerm, PostWithCounts } from "@/lib/types";
@@ -51,9 +52,8 @@ export default async function TermPage({ params }: Params) {
   return (
     <div className="wrap narrow">
       {isOwner && (
-        <div className="owner-bar" role="region" aria-label="Owner tools" style={{ marginBottom: 24 }}>
-          <span style={{ marginRight: "auto" }}>You are the owner{term.published ? "" : " · draft, only you see it"}</span>
-          <Link href={`/studio/glossary/${term.id}`} className="btn">Edit card</Link>
+        <div style={{ marginBottom: 24 }}>
+          <TermTools term={term} afterDeleteHref="/glossary" />
         </div>
       )}
       <article>

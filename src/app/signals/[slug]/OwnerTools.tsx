@@ -6,7 +6,7 @@ import { saveTake, setStatus } from "@/app/studio/actions";
 import { pullFullText } from "@/app/studio/concha-actions";
 
 /** Yasmim's bar on every post: edit in the Studio, write her take in place, publish or unpublish. */
-export function OwnerTools({ id, slug, take, status, hasBody }: { id: string; slug: string; take: string; status: "draft" | "published" | "caught" | "skipped"; hasBody?: boolean }) {
+export function OwnerTools({ id, slug, take, status, hasBody, children }: { id: string; slug: string; take: string; status: "draft" | "published" | "caught" | "skipped"; hasBody?: boolean; children?: React.ReactNode }) {
   const [open, setOpen] = useState(false);
   const [text, setText] = useState(take);
   const [msg, setMsg] = useState<string | null>(null);
@@ -23,6 +23,7 @@ export function OwnerTools({ id, slug, take, status, hasBody }: { id: string; sl
           {take ? "Edit my take" : "Write my take"}
         </button>
         <Link href={`/studio/${id}`} className="btn">Edit post</Link>
+        {children}
         {!hasBody && (
           <button
             type="button"

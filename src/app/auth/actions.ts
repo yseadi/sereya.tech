@@ -27,6 +27,14 @@ export async function logIn(_: FormState, fd: FormData): Promise<FormState> {
  * so the invite code is really enforced (public sign-ups stay off in Supabase)
  * and nobody waits for a confirmation email.
  */
+/** A cluster link Yasmim shared works as an invitation. */
+async function fromCluster(slug: string) {
+  if (!/^[a-z0-9][a-z0-9-]{2,90}$/.test(slug)) return false;
+  const supabase = await createClient();
+  const { data } = await supabase.rpc("cluster_by_slug", { p_slug: slug });
+  return !!data;
+}
+
 export async function createAccount(_: FormState, fd: FormData): Promise<FormState> {
   const name = text(fd, "name");
   const email = text(fd, "email").toLowerCase();
@@ -40,7 +48,7 @@ export async function createAccount(_: FormState, fd: FormData): Promise<FormSta
   if (password.length < 8) return { error: "Use at least 8 characters for your password.", values };
   if (fd.get("terms") !== "on") return { error: "Please agree to the terms and the privacy policy.", values };
   const expected = (process.env.INVITE_CODE ?? "").trim();
-  if (expected && invite.toLowerCase() !== expected.toLowerCase()) {
+  if (expected && invite.toLowerCase() !== expected.toLowerCase() && !(await fromCluster(text(fd, "cluster")))) {
     return { error: "That invite code doesn’t match. Ask Yasmim for yours.", values };
   }
 

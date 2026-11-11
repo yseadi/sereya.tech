@@ -23,3 +23,18 @@ export async function saveSettings(input: { name: string; bio: string; categorie
   revalidatePath("/", "layout");
   return {};
 }
+
+/** Saves (or clears) the member's profile photo. The photo must be one they uploaded into their own folder. */
+export async function setAvatar(url: string): Promise<{ error?: string }> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "Log in again." };
+  const prefix = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/avatars/${user.id}/`;
+  if (url && !url.startsWith(prefix)) return { error: "That photo can’t be used." };
+  const { error } = await supabase.from("profiles").update({ avatar_url: url }).eq("id", user.id);
+  if (error) return { error: "Couldn’t save the photo." };
+  revalidatePath("/", "layout");
+  return {};
+}

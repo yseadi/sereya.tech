@@ -8,8 +8,14 @@ import { deleteTerm } from "../concha-actions";
 import { saveTerm, type TermState } from "../glossary-actions";
 import { RichEditor } from "@/components/RichEditor";
 
-export function TermForm({ term, justSaved }: { term?: GlossaryTerm; justSaved?: boolean }) {
-  const [state, action, saving] = useActionState<TermState, FormData>(saveTerm, justSaved ? { saved: true } : {});
+type Props = { term?: GlossaryTerm; justSaved?: boolean; onDone?: (r: { slug?: string; deleted?: boolean }) => void; onCancel?: () => void };
+
+export function TermForm({ term, justSaved, onDone, onCancel }: Props) {
+  const [state, action, saving] = useActionState<TermState, FormData>(async (prev, fd) => {
+    const r = await saveTerm(prev, fd);
+    if (r.saved && onDone) onDone({ slug: r.slug });
+    return r;
+  }, justSaved ? { saved: true } : {});
   const intentRef = useRef<HTMLInputElement>(null);
   const [deleting, startDelete] = useTransition();
   const live = term?.published;
@@ -19,6 +25,7 @@ export function TermForm({ term, justSaved }: { term?: GlossaryTerm; justSaved?:
       {term && <input type="hidden" name="id" value={term.id} />}
       {term && <input type="hidden" name="slug" value={term.slug} />}
       <input type="hidden" name="intent" ref={intentRef} defaultValue="" />
+      {onDone && <input type="hidden" name="inline" value="1" />}
       {state.error && <p className="error" role="alert">{state.error}</p>}
       {state.saved && !saving && <p className="notice" role="status">Saved.</p>}
 
@@ -66,7 +73,8 @@ export function TermForm({ term, justSaved }: { term?: GlossaryTerm; justSaved?:
             <button className="btn ghost" disabled={saving} onClick={() => intentRef.current && (intentRef.current.value = "draft")}>Save draft</button>
           </>
         )}
-        {term && live && <Link href={`/glossary/${term.slug}`} className="btn quiet">Open card</Link>}
+        {term && live && !onDone && <Link href={`/glossary/${term.slug}`} className="btn quiet">Open card</Link>}
+        {onCancel && <button type="button" className="btn quiet" onClick={onCancel}>Cancel</button>}
         {term && (
           <button
             type="button"
@@ -77,7 +85,9 @@ export function TermForm({ term, justSaved }: { term?: GlossaryTerm; justSaved?:
               if (!window.confirm(`Delete “${term.term}” from the glossary? Concha stops listening for it too.`)) return;
               startDelete(async () => {
                 const r = await deleteTerm(term.id);
-                if (!r.error) window.location.href = "/studio/glossary";
+                if (r.error) return;
+                if (onDone) onDone({ deleted: true });
+                else window.location.href = "/studio/glossary";
               });
             }}
           >

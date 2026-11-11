@@ -43,7 +43,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       </head>
       <body>
         <Glow />
-        <Menu name={name} isOwner={profile?.role === "owner"} />
+        <Menu name={name} isOwner={profile?.role === "owner"} avatarUrl={profile?.avatar_url} />
         <main>{children}</main>
         <Footer />
       </body>

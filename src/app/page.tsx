@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { Avatar } from "@/components/Avatar";
 import { CategoryPill } from "@/components/CategoryPill";
 import { Pearl } from "@/components/Pearl";
 import { PostCard } from "@/components/PostCard";
@@ -104,7 +105,7 @@ export default async function Home() {
             {talk.map((c) => (
               <Link key={c.id} href={`/signals/${c.post?.slug}#c-${c.id}`} className="card comment" style={{ textDecoration: "none", color: "inherit" }}>
                 <div className="head">
-                  <span className="avatar sm">{(c.author?.display_name || "?").slice(0, 1).toUpperCase()}</span>
+                  <Avatar name={c.author?.display_name || "?"} url={c.author?.avatar_url} size="sm" />
                   <span className="name">{c.author?.display_name}</span>
                   <span className="muted">{timeAgo(c.created_at)}</span>
                 </div>

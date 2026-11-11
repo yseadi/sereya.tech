@@ -1,5 +1,6 @@
 import { requireMember } from "@/lib/auth";
 import { logOut } from "../auth/actions";
+import { AvatarPicker } from "./AvatarPicker";
 import { SettingsForm } from "./SettingsForm";
 
 export const metadata = { title: "Settings" };
@@ -9,7 +10,9 @@ export default async function SettingsPage() {
   return (
     <div className="wrap narrow">
       <p className="eyebrow">Settings</p>
-      <h1 style={{ fontSize: 44, fontWeight: 500, margin: "6px 0 24px" }}>Your Sereya</h1>
+      <h1 style={{ fontSize: 44, fontWeight: 500, margin: "6px 0 24px" }}>Your profile</h1>
+      <AvatarPicker userId={user.id} name={profile.display_name} url={profile.avatar_url ?? ""} />
+      <div style={{ height: 18 }} />
       <SettingsForm
         email={user.email ?? ""}
         name={profile.display_name}
