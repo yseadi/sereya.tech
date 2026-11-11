@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { CategoryPill } from "@/components/CategoryPill";
+import { Avatar } from "@/components/Avatar";
 import { IconComment, IconHeart } from "@/components/Icons";
 import { requireMember } from "@/lib/auth";
 import { timeAgo } from "@/lib/format";
@@ -53,7 +54,7 @@ export default async function CommunityPage() {
                 style={{ textDecoration: "none", color: "inherit" }}
               >
                 <div className="head">
-                  <span className="avatar sm">{(c.author?.display_name || "?").slice(0, 1).toUpperCase()}</span>
+                  <Avatar name={c.author?.display_name || "?"} url={c.author?.avatar_url} size="sm" />
                   <span className="name">{c.author?.display_name}</span>
                   {c.author?.role === "owner" && <span className="pill owner-badge">Sereya</span>}
                   <span className="muted">{c.parent_id ? "replied" : "commented"} {timeAgo(c.created_at)}</span>

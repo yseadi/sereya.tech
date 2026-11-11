@@ -11,6 +11,8 @@ import type { PostWithCounts } from "@/lib/types";
 import { Comments } from "./Comments";
 import { OwnerTools } from "./OwnerTools";
 import { PostLike } from "./PostLike";
+import { SaveButton } from "./SaveButton";
+import { formatSize } from "@/lib/size";
 
 export const dynamic = "force-dynamic";
 
@@ -40,13 +42,16 @@ export default async function PostPage({ params }: Params) {
 
   const isOwner = profile?.role === "owner";
   let liked = false;
+  let saved = false;
   let comments: Awaited<ReturnType<typeof getComments>> = [];
   if (user) {
-    const [{ data: like }, rows] = await Promise.all([
+    const [{ data: like }, rows, { data: save }] = await Promise.all([
       supabase.from("post_likes").select("post_id").eq("post_id", post.id).eq("user_id", user.id).maybeSingle(),
       getComments(supabase, post.id),
+      supabase.from("saved_posts").select("post_id").eq("post_id", post.id).eq("user_id", user.id).maybeSingle(),
     ]);
     liked = !!like;
+    saved = !!save;
     comments = rows;
   }
 
@@ -70,13 +75,33 @@ export default async function PostPage({ params }: Params) {
           {post.tags.length > 0 && (
             <div className="chips">
               {post.tags.map((t) => (
-                <span key={t} className="pill" style={{ background: "#f5f6f6", color: "#5a6567" }}>#{t}</span>
+                <Link key={t} href={`/signals?tag=${encodeURIComponent(t)}`} className="pill tag-pill" title={`All signals tagged ${t}`}>#{t}</Link>
               ))}
             </div>
           )}
         </header>
 
-        {post.image_url && (
+        {post.pdf_url ? (
+          <div className="card report-download">
+            <a href={post.pdf_url} target="_blank" rel="noopener noreferrer" className="report-cover" aria-label="Open the PDF">
+              {post.image_url ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={post.image_url} alt={`Cover of ${post.title}`} />
+              ) : (
+                <span className="report-blank">PDF</span>
+              )}
+            </a>
+            <div className="report-info">
+              <span className="eyebrow">Report · PDF{post.pdf_size ? ` · ${formatSize(post.pdf_size)}` : ""}</span>
+              <strong>{post.title}</strong>
+              {post.source_name && <span className="muted">by {post.source_name}</span>}
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 8 }}>
+                <a href={`${post.pdf_url}?download=`} className="btn" download>Download PDF</a>
+                <a href={post.pdf_url} target="_blank" rel="noopener noreferrer" className="btn ghost">Read in the browser</a>
+              </div>
+            </div>
+          </div>
+        ) : post.image_url && (
           <div className="post-hero">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={post.image_url} alt="" />
@@ -120,7 +145,10 @@ export default async function PostPage({ params }: Params) {
 
         <div className="actions-row" style={{ marginTop: post.take ? 0 : 28 }}>
           {user ? (
-            <PostLike postId={post.id} slug={post.slug} liked={liked} count={likeCount(post)} />
+            <>
+              <PostLike postId={post.id} slug={post.slug} liked={liked} count={likeCount(post)} />
+              {post.status === "published" && <SaveButton postId={post.id} slug={post.slug} saved={saved} />}
+            </>
           ) : null}
           {post.source_url && (
             <a href={post.source_url} target="_blank" rel="noopener noreferrer" className="btn ghost small" style={{ height: 44 }}>

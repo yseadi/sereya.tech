@@ -14,13 +14,13 @@ export function PostCard({ post, showCounts }: { post: PostWithCounts; showCount
       <div className="ph">
         {fmt === "report" ? (
           <>
-            <span className="cover">
+            <span className={`cover${post.pdf_url ? " pdf" : ""}`}>
               {post.image_url ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={post.image_url} alt="" loading="lazy" />
               ) : null}
             </span>
-            <span className="stamp">Report</span>
+            <span className="stamp">{post.pdf_url ? "PDF" : "Report"}</span>
           </>
         ) : post.image_url ? (
           // eslint-disable-next-line @next/next/no-img-element

@@ -15,7 +15,7 @@ export function commentCount(p: Partial<PostWithCounts>) {
 
 export async function listPosts(
   supabase: SupabaseClient,
-  opts: { signedIn: boolean; categories?: CategoryKey[]; format?: string; limit?: number; offset?: number },
+  opts: { signedIn: boolean; categories?: CategoryKey[]; format?: string; tag?: string; limit?: number; offset?: number },
 ) {
   let q = supabase
     .from("posts")
@@ -24,6 +24,7 @@ export async function listPosts(
     .order("published_at", { ascending: false });
   if (opts.categories?.length) q = q.in("category", opts.categories);
   if (opts.format) q = q.eq("format", opts.format);
+  if (opts.tag) q = q.contains("tags", [opts.tag]);
   const limit = opts.limit ?? 30;
   const offset = opts.offset ?? 0;
   const { data, error } = await q.range(offset, offset + limit - 1);
@@ -46,7 +47,7 @@ export async function getPearl(supabase: SupabaseClient, signedIn: boolean) {
 export async function getComments(supabase: SupabaseClient, postId: string) {
   const { data, error } = await supabase
     .from("comments")
-    .select("*, author:profiles!comments_user_id_fkey(id, display_name, role), comment_likes(user_id)")
+    .select("*, author:profiles!comments_user_id_fkey(id, display_name, role, avatar_url), comment_likes(user_id)")
     .eq("post_id", postId)
     .order("created_at", { ascending: true });
   if (error) console.error("getComments", error.message);
@@ -58,7 +59,7 @@ export type RecentComment = CommentRow & { post: { slug: string; title: string; 
 export async function recentComments(supabase: SupabaseClient, limit = 20) {
   const { data, error } = await supabase
     .from("comments")
-    .select("*, author:profiles!comments_user_id_fkey(id, display_name, role), comment_likes(user_id), post:posts(slug, title, category)")
+    .select("*, author:profiles!comments_user_id_fkey(id, display_name, role, avatar_url), comment_likes(user_id), post:posts(slug, title, category)")
     .order("created_at", { ascending: false })
     .limit(limit);
   if (error) console.error("recentComments", error.message);

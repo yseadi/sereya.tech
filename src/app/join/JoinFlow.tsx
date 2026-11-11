@@ -94,7 +94,7 @@ export function JoinFlow({ signedIn, name, inviteRequired, initialCategories, in
             )}
             <label className="check">
               <input type="checkbox" name="terms" defaultChecked={accountState.values?.terms === "on"} required />
-              <span>I agree to the terms and the privacy policy.</span>
+              <span>I am 18 or older and I agree to the <a href="/terms" target="_blank" className="inline-link">Terms of Use</a> and the <a href="/privacy" target="_blank" className="inline-link">Privacy Policy</a>.</span>
             </label>
             <Submit pendingText="Creating your account…">Continue</Submit>
             <p className="muted" style={{ fontSize: 15 }}>

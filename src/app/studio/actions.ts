@@ -32,10 +32,12 @@ export async function savePost(_: StudioState, fd: FormData): Promise<StudioStat
   const format = str(fd, "format");
   const source_url = str(fd, "source_url");
   const image_url = str(fd, "image_url");
+  const pdf_url = str(fd, "pdf_url");
+  const pdf_size = Math.max(0, Math.min(2 ** 31 - 1, Number(str(fd, "pdf_size")) || 0));
   if (!title) return { error: "A post needs a title." };
   if (!isCategory(category)) return { error: "Pick a category." };
   if (!FORMATS.includes(format as (typeof FORMATS)[number])) return { error: "Pick a format." };
-  if (!isUrl(source_url) || !isUrl(image_url)) return { error: "Links must start with http:// or https://" };
+  if (!isUrl(source_url) || !isUrl(image_url) || !isUrl(pdf_url)) return { error: "Links must start with http:// or https://" };
 
   const slug = slugify(str(fd, "slug") || title);
   if (!slug) return { error: "The title needs some letters or numbers for the link." };
@@ -49,6 +51,8 @@ export async function savePost(_: StudioState, fd: FormData): Promise<StudioStat
     format,
     source_url,
     image_url,
+    pdf_url,
+    pdf_size: pdf_url ? pdf_size : 0,
     dek: str(fd, "dek"),
     take: str(fd, "take"),
     body: str(fd, "body").replace(/\r\n/g, "\n").slice(0, 100000),

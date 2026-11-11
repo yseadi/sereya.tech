@@ -6,7 +6,7 @@ import { isCategory } from "@/lib/categories";
 import { slugify } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
 
-export type TermState = { error?: string; saved?: boolean };
+export type TermState = { error?: string; saved?: boolean; id?: string; slug?: string };
 
 const str = (fd: FormData, k: string) => String(fd.get(k) ?? "").trim();
 
@@ -50,6 +50,27 @@ export async function saveTerm(_prev: TermState, fd: FormData): Promise<TermStat
   }
   revalidatePath("/glossary", "layout");
   revalidatePath("/studio", "layout");
-  if (!id) redirect(`/studio/glossary/${data.id}?saved=1`);
-  return { saved: true };
+  if (!id && fd.get("inline") !== "1") redirect(`/studio/glossary/${data.id}?saved=1`);
+  return { saved: true, id: data.id, slug };
+}
+
+async function asOwner() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { supabase, ok: false };
+  const { data: me } = await supabase.from("profiles").select("role").eq("id", user.id).single();
+  return { supabase, ok: me?.role === "owner" };
+}
+
+/** Show or hide a glossary card for readers, straight from the Glossary page. */
+export async function setTermPublished(id: string, published: boolean): Promise<{ error?: string }> {
+  const { supabase, ok } = await asOwner();
+  if (!ok) return { error: "Only Yasmim can do this." };
+  const { error } = await supabase.from("concha_terms").update({ published }).eq("id", id).eq("kind", "glossary");
+  if (error) return { error: "Couldn’t change it." };
+  revalidatePath("/glossary", "layout");
+  revalidatePath("/studio", "layout");
+  return {};
 }

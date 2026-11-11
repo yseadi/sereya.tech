@@ -76,3 +76,15 @@ export async function deleteComment(commentId: string, slug: string): Promise<Re
   refresh(slug);
   return {};
 }
+
+export async function toggleSave(postId: string, slug: string, save: boolean): Promise<Result> {
+  const { supabase, user } = await member();
+  if (!user) return { error: "Log in to save signals." };
+  const { error } = save
+    ? await supabase.from("saved_posts").upsert({ post_id: postId, user_id: user.id }, { ignoreDuplicates: true })
+    : await supabase.from("saved_posts").delete().eq("post_id", postId).eq("user_id", user.id);
+  if (error) return { error: "Couldn’t save it." };
+  refresh(slug);
+  revalidatePath("/saved");
+  return {};
+}

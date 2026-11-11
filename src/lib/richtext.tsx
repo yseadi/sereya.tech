@@ -10,18 +10,29 @@ import type { ReactNode } from "react";
 type Block =
   | { kind: "h1" | "h2" | "h3" | "p" | "quote"; text: string }
   | { kind: "ul" | "ol"; items: string[] }
+  | { kind: "img"; alt: string; src: string }
+  | { kind: "table"; head: string[]; rows: string[][] }
   | { kind: "hr" };
+
+const SAFE_SRC = /^(https:\/\/|\/)[^\s"'<>]+$/;
+const cells = (l: string) => l.trim().replace(/^\||\|$/g, "").split("|").map((c) => c.trim());
 
 export function parseBlocks(src: string): Block[] {
   const blocks: Block[] = [];
   let para: string[] = [];
   let quote: string[] = [];
   let list: { kind: "ul" | "ol"; items: string[] } | null = null;
+  let table: string[] = [];
 
   const flush = () => {
     if (para.length) blocks.push({ kind: "p", text: para.join("\n") });
     if (quote.length) blocks.push({ kind: "quote", text: quote.join("\n") });
     if (list) blocks.push(list);
+    if (table.length) {
+      const rows = table.map(cells).filter((r) => !r.every((c) => /^:?-{2,}:?$/.test(c)));
+      if (rows.length) blocks.push({ kind: "table", head: rows[0], rows: rows.slice(1) });
+    }
+    table = [];
     para = [];
     quote = [];
     list = null;
@@ -32,6 +43,18 @@ export function parseBlocks(src: string): Block[] {
     const t = line.trim();
     if (!t) {
       flush();
+      continue;
+    }
+    if (t.startsWith("|") && t.endsWith("|") && t.length > 2) {
+      if (!table.length) flush();
+      table.push(t);
+      continue;
+    }
+    if (table.length) flush();
+    const img = t.match(/^!\[([^\]\n]*)\]\(([^)\s]+)\)$/);
+    if (img && SAFE_SRC.test(img[2])) {
+      flush();
+      blocks.push({ kind: "img", alt: img[1], src: img[2] });
       continue;
     }
     const h = t.match(/^(#{1,3})\s+(.+)$/);
@@ -140,6 +163,26 @@ export function RichText({ text, empty }: { text: string; empty?: ReactNode }) {
             return <ol key={k}>{b.items.map((it, j) => <li key={j}>{inline(it, `${k}-${j}`)}</li>)}</ol>;
           case "hr":
             return <hr key={k} />;
+          case "img":
+            return (
+              <figure key={k} className="rt-figure">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={b.src} alt={b.alt} loading="lazy" />
+              </figure>
+            );
+          case "table":
+            return (
+              <div key={k} className="rt-table">
+                <table>
+                  <thead><tr>{b.head.map((c, j) => <th key={j}>{inline(c, `${k}-h${j}`)}</th>)}</tr></thead>
+                  <tbody>
+                    {b.rows.map((r, ri) => (
+                      <tr key={ri}>{r.map((c, j) => <td key={j}>{inline(c, `${k}-${ri}-${j}`)}</td>)}</tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            );
           default:
             return <p key={k}>{inline(b.text, k)}</p>;
         }
@@ -151,6 +194,8 @@ export function RichText({ text, empty }: { text: string; empty?: ReactNode }) {
 /** Plain words for excerpts and cards: the formatting marks taken out. */
 export function plainText(text: string): string {
   return (text ?? "")
+    .replace(/!\[[^\]\n]*\]\([^)\s]+\)/g, "")
+    .replace(/^\s*\|.*\|\s*$/gm, "")
     .replace(/\[([^\]\n]+)\]\([^)\s]+\)/g, "$1")
     .replace(/^\s{0,3}(#{1,3}|>|[-*•]|\d+[.)])\s+/gm, "")
     .replace(/^\s*(-{3,}|\*{3,})\s*$/gm, "")

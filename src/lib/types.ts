@@ -9,6 +9,7 @@ export interface Profile {
   categories: CategoryKey[];
   regions: string[];
   onboarded: boolean;
+  avatar_url: string;
   created_at: string;
 }
 
@@ -22,6 +23,8 @@ export interface Post {
   source_url: string;
   byline: string;
   image_url: string;
+  pdf_url?: string;
+  pdf_size?: number;
   category: CategoryKey;
   format: Format;
   tags: string[];
@@ -51,7 +54,7 @@ export interface CommentRow {
   body: string;
   created_at: string;
   edited_at: string | null;
-  author: { id: string; display_name: string; role: "owner" | "member" } | null;
+  author: { id: string; display_name: string; role: "owner" | "member"; avatar_url?: string } | null;
   comment_likes: { user_id: string }[];
 }
 

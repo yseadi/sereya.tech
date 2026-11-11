@@ -1,5 +1,6 @@
 "use client";
 
+import { Avatar } from "@/components/Avatar";
 import { useState, useTransition } from "react";
 import { LikeButton } from "@/components/LikeButton";
 import { IconReply } from "@/components/Icons";
@@ -96,7 +97,7 @@ function CommentItem({ node, ctx, depth }: { node: Node; ctx: Ctx; depth: number
     <div id={`c-${node.id}`}>
       <article className={`card comment${byOwner ? " by-owner" : ""}`} aria-label={`Comment by ${name}`}>
         <div className="head">
-          <span className="avatar sm">{name.slice(0, 1).toUpperCase()}</span>
+          <Avatar name={name} url={node.author?.avatar_url} size="sm" />
           <span className="name">{name}</span>
           {byOwner && <span className="pill owner-badge">Sereya</span>}
           <span className="muted">

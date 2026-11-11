@@ -7,6 +7,7 @@ import type { Post } from "@/lib/types";
 import { deletePost, savePost, type StudioState } from "./actions";
 import { fetchLinkPreview } from "./preview";
 import { ImagePicker } from "@/components/ImagePicker";
+import { PdfPicker, type PdfInfo } from "@/components/PdfPicker";
 import { RichEditor } from "@/components/RichEditor";
 
 export function PostForm({ post, justSaved }: { post?: Post; justSaved?: boolean }) {
@@ -16,6 +17,8 @@ export function PostForm({ post, justSaved }: { post?: Post; justSaved?: boolean
   const intentRef = useRef<HTMLInputElement>(null);
   const [image, setImage] = useState(post?.image_url ?? "");
   const [broken, setBroken] = useState(false);
+  const [pdf, setPdf] = useState<PdfInfo | null>(post?.pdf_url ? { url: post.pdf_url, size: post.pdf_size ?? 0 } : null);
+  const formatRef = useRef<HTMLSelectElement>(null);
   const [fetching, startFetch] = useTransition();
   const [fetchMsg, setFetchMsg] = useState<string | null>(null);
   const [deleting, startDelete] = useTransition();
@@ -112,7 +115,7 @@ export function PostForm({ post, justSaved }: { post?: Post; justSaved?: boolean
         </div>
         <div className="field">
           <label htmlFor="format">Format</label>
-          <select id="format" name="format" className="select" defaultValue={post?.format ?? "News"}>
+          <select id="format" name="format" ref={formatRef} className="select" defaultValue={post?.format ?? "News"}>
             {FORMATS.map((f) => (
               <option key={f} value={f}>{f}</option>
             ))}
@@ -126,6 +129,24 @@ export function PostForm({ post, justSaved }: { post?: Post; justSaved?: boolean
         <div className="field">
           <label htmlFor="byline">Author at the source</label>
           <input id="byline" name="byline" className="input" defaultValue={post?.byline} />
+        </div>
+
+        <div className="field full">
+          <label>Report PDF</label>
+          <input type="hidden" name="pdf_url" value={pdf?.url ?? ""} />
+          <input type="hidden" name="pdf_size" value={pdf?.size ?? 0} />
+          <PdfPicker
+            value={pdf}
+            onChange={(v) => {
+              setPdf(v);
+              if (v && formatRef.current) formatRef.current.value = "Report";
+              if (v?.cover) {
+                setBroken(false);
+                setImage(v.cover);
+              }
+            }}
+          />
+          <span className="hint">For a Report: people download the PDF from the post, and its first page becomes the card’s cover.</span>
         </div>
 
         <div className="field full">
