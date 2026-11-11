@@ -39,6 +39,7 @@ export async function saveTerm(_prev: TermState, fd: FormData): Promise<TermStat
       .slice(0, 12),
     definition: str(fd, "definition").replace(/\r\n/g, "\n").slice(0, 40000),
     category: isCategory(cat) ? cat : null,
+    cover_position: /^center \d{1,3}%$/.test(str(fd, "cover_position")) ? str(fd, "cover_position") : "center 50%",
     image_url: /^(https?:\/\/|\/)[^\s"'<>]{1,990}$/.test(str(fd, "image_url")) ? str(fd, "image_url") : "",
     published: intent === "publish" ? true : intent === "draft" ? false : fd.get("published") === "on",
   };
@@ -89,34 +90,3 @@ export async function suggestCover(term: string, aliases: string, definition: st
   return url ? { url } : { error: "No photo found on Wikipedia. Upload one instead." };
 }
 
-/** Find covers for the published cards that have none, a batch at a time. */
-export async function fillMissingCovers(): Promise<{ found: number; tried: number; left: number; error?: string }> {
-  const { supabase, ok } = await asOwner();
-  if (!ok) return { found: 0, tried: 0, left: 0, error: "Only Yasmim can do this." };
-  const { data } = await supabase
-    .from("concha_terms")
-    .select("id, term, aliases, definition, cover_tried")
-    .eq("kind", "glossary")
-    .eq("image_url", "")
-    .eq("cover_tried", false)
-    .order("term")
-    .limit(60);
-  const rows = data ?? [];
-  const batch = rows.slice(0, 12);
-  let found = 0;
-  await Promise.all(
-    batch.map(async (t) => {
-      const url = await findWikiImage(t);
-      if (url) found++;
-      await supabase.from("concha_terms").update(url ? { image_url: url, cover_tried: true } : { cover_tried: true }).eq("id", t.id);
-    }),
-  );
-  revalidatePath("/glossary", "layout");
-  const { count } = await supabase
-    .from("concha_terms")
-    .select("id", { count: "exact", head: true })
-    .eq("kind", "glossary")
-    .eq("image_url", "")
-    .eq("cover_tried", false);
-  return { found, tried: batch.length, left: count ?? 0 };
-}

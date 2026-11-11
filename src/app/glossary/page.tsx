@@ -1,6 +1,6 @@
 import { getViewer } from "@/lib/auth";
 import type { GlossaryTerm } from "@/lib/types";
-import { FillCovers, NewTermButton } from "./GlossaryAdmin";
+import { NewTermButton } from "./GlossaryAdmin";
 import { GlossaryGrid } from "./GlossaryGrid";
 
 export const metadata = {
@@ -15,7 +15,7 @@ export default async function GlossaryPage() {
   // The owner also sees her hidden cards, to show them again or finish them.
   let query = supabase
     .from("concha_terms")
-    .select("id, term, slug, aliases, definition, category, image_url, published, updated_at")
+    .select("id, term, slug, aliases, definition, category, image_url, cover_position, published, updated_at")
     .eq("kind", "glossary")
     .order("term");
   if (!isOwner) query = query.eq("published", true);
@@ -34,7 +34,6 @@ export default async function GlossaryPage() {
         {isOwner && (
           <div style={{ marginTop: 16, display: "flex", gap: 12, flexWrap: "wrap", alignItems: "center" }}>
             <NewTermButton />
-            {terms.some((t) => !t.image_url) && <FillCovers missing={terms.filter((t) => !t.image_url).length} />}
           </div>
         )}
       </div>

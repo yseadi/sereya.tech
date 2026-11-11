@@ -13,7 +13,7 @@ export default async function StudioGlossary({ searchParams }: { searchParams: P
   const { supabase } = await requireOwner();
   let query = supabase
     .from("concha_terms")
-    .select("id, term, slug, aliases, definition, category, image_url, published, updated_at")
+    .select("id, term, slug, aliases, definition, category, image_url, cover_position, published, updated_at")
     .eq("kind", "glossary")
     .order("term");
   if (show === "published") query = query.eq("published", true);
