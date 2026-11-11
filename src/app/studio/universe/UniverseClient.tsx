@@ -1,7 +1,9 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { CATEGORIES, CATEGORY_KEYS } from "@/lib/categories";
 import { timeAgo } from "@/lib/format";
+import type { CategoryKey } from "@/lib/types";
 import { addSource, addTerm, deleteSource, deleteTerm, setAutopublish, updateSource } from "../concha-actions";
 
 type Source = {
@@ -128,9 +130,10 @@ export function AddSourceForm() {
   );
 }
 
-export function TermAdder({ kind }: { kind: "glossary" | "never" }) {
+export function TermAdder({ kind }: { kind: "glossary" | "never" | "listen" }) {
   const [term, setTerm] = useState("");
   const [aliases, setAliases] = useState("");
+  const [category, setCategory] = useState<CategoryKey | "">("");
   const [error, setError] = useState<string | null>(null);
   const [pending, start] = useTransition();
   return (
@@ -140,7 +143,7 @@ export function TermAdder({ kind }: { kind: "glossary" | "never" }) {
         e.preventDefault();
         setError(null);
         start(async () => {
-          const r = await addTerm(kind, term, aliases);
+          const r = await addTerm(kind, term, aliases, category || undefined);
           if (r.error) return setError(r.error);
           setTerm("");
           setAliases("");
@@ -148,20 +151,39 @@ export function TermAdder({ kind }: { kind: "glossary" | "never" }) {
       }}
     >
       <div style={{ flex: "1 1 200px" }}>
-        <label className="label" htmlFor={`term-${kind}`}>{kind === "glossary" ? "Term" : "Word to avoid"}</label>
+        <label className="label" htmlFor={`term-${kind}`}>{kind === "glossary" ? "Term" : kind === "listen" ? "Word or subject" : "Word to avoid"}</label>
         <input id={`term-${kind}`} className="input" value={term} onChange={(e) => setTerm(e.target.value)} />
       </div>
       <div style={{ flex: "2 1 260px" }}>
         <label className="label" htmlFor={`alias-${kind}`}>Other ways to say it <span className="muted">(comma separated, optional)</span></label>
-        <input id={`alias-${kind}`} className="input" value={aliases} onChange={(e) => setAliases(e.target.value)} placeholder={kind === "glossary" ? "e.g. solarpunk, solar punk" : ""} />
+        <input id={`alias-${kind}`} className="input" value={aliases} onChange={(e) => setAliases(e.target.value)} placeholder={kind === "never" ? "" : kind === "listen" ? "e.g. biomimetic, bio-inspired" : "e.g. solarpunk, solar punk"} />
       </div>
+      {kind === "listen" && (
+        <div style={{ flex: "1 1 200px" }}>
+          <label className="label" htmlFor="listen-cat">Category</label>
+          <select id="listen-cat" className="input" value={category} onChange={(e) => setCategory(e.target.value as CategoryKey)} required>
+            <option value="">Choose…</option>
+            {CATEGORY_KEYS.map((k) => (
+              <option key={k} value={k}>{CATEGORIES[k].label}</option>
+            ))}
+          </select>
+        </div>
+      )}
       <button className="btn ghost" disabled={pending}>Add</button>
       {error && <p className="error" style={{ flexBasis: "100%" }}>{error}</p>}
     </form>
   );
 }
 
-export function TermChip({ term, never }: { term: { id: string; term: string; aliases: string[] }; never?: boolean }) {
+export function TermChip({
+  term,
+  never,
+  plain,
+}: {
+  term: { id: string; term: string; aliases: string[]; category?: CategoryKey | null };
+  never?: boolean;
+  plain?: boolean;
+}) {
   const [gone, setGone] = useState(false);
   const [pending, start] = useTransition();
   if (gone) return null;
@@ -169,9 +191,12 @@ export function TermChip({ term, never }: { term: { id: string; term: string; al
     <span
       className="pill"
       title={term.aliases.length ? `Also: ${term.aliases.join(", ")}` : undefined}
-      style={{ background: never ? "#f5f6f6" : "#f5f3fa", color: never ? "#3c4648" : "#4a3a8c", display: "inline-flex", gap: 6, alignItems: "center", padding: "6px 6px 6px 12px" }}
+      style={{
+        background: never ? "#f5f6f6" : plain && term.category ? CATEGORIES[term.category].bg : "#f5f3fa",
+        color: never ? "#3c4648" : plain && term.category ? CATEGORIES[term.category].text : "#4a3a8c", display: "inline-flex", gap: 6, alignItems: "center", padding: "6px 6px 6px 12px",
+      }}
     >
-      {never ? term.term : <a href={`/studio/glossary/${term.id}`} style={{ color: "inherit", textDecoration: "none" }}>{term.term}</a>}
+      {never || plain ? term.term : <a href={`/studio/glossary/${term.id}`} style={{ color: "inherit", textDecoration: "none" }}>{term.term}</a>}
       {term.aliases.length > 0 && <span style={{ opacity: 0.6, fontSize: 12 }}>+{term.aliases.length}</span>}
       <button
         type="button"
@@ -183,5 +208,43 @@ export function TermChip({ term, never }: { term: { id: string; term: string; al
         ×
       </button>
     </span>
+  );
+}
+
+/** One category's words: the ones that place an item in it. Type a word and press Enter to add it. */
+export function CategoryWords({ category, words }: { category: CategoryKey; words: { id: string; term: string; aliases: string[]; category: CategoryKey | null }[] }) {
+  const [word, setWord] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [pending, start] = useTransition();
+  const c = CATEGORIES[category];
+  return (
+    <div className="card cat-words">
+      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <span style={{ width: 10, height: 10, borderRadius: 99, background: c.dot }} />
+        <strong>{c.label}</strong>
+        <span className="muted" style={{ fontSize: 14 }}>· {words.length} words</span>
+      </div>
+      <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+        {words.map((w) => (
+          <TermChip key={w.id} term={w} plain />
+        ))}
+      </div>
+      <form
+        style={{ display: "flex", gap: 8 }}
+        onSubmit={(e) => {
+          e.preventDefault();
+          setError(null);
+          start(async () => {
+            const r = await addTerm("category", word, "", category);
+            if (r.error) return setError(r.error);
+            setWord("");
+          });
+        }}
+      >
+        <input className="input" value={word} onChange={(e) => setWord(e.target.value)} placeholder="Add a word…" aria-label={`Add a word to ${c.label}`} style={{ height: 38, fontSize: 14 }} />
+        <button className="btn small ghost" disabled={pending || !word.trim()}>Add</button>
+      </form>
+      {error && <p className="error">{error}</p>}
+    </div>
   );
 }

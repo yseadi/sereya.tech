@@ -2,15 +2,16 @@ import type { CategoryKey } from "../types";
 
 /**
  * How Concha scores an item, 0 to 100 (the "Fit"):
- *  - each glossary term found: +35 (up to 70)
+ *  - each listen word or glossary term found: +35 (up to 70); a listen word also pulls toward its category
  *  - words of the best-matching category: +10 each (up to 50)
  *  - the Global South lens (a story from outside the US and Europe): +20
  *  - anything on the never list: 0, skipped
  * The category with the most words becomes the suggestion.
  */
 
-export type Term = { term: string; aliases: string[] };
+export type Term = { term: string; aliases: string[]; category?: CategoryKey | null };
 
+/** The first category words, used until Yasmim's own list is in the database. */
 export const CATEGORY_WORDS: Record<CategoryKey, string[]> = {
   res: [
     "surveillance", "privacy", "spyware", "encryption", "facial recognition", "biometric", "censorship", "VPN",
@@ -75,17 +76,24 @@ function wordRe(word: string) {
 
 export type Compiled = {
   glossary: { term: string; res: RegExp[] }[];
+  listen: { term: string; category: CategoryKey; res: RegExp[] }[];
   never: { term: string; res: RegExp[] }[];
   categories: [CategoryKey, RegExp[]][];
   south: RegExp[];
 };
 
-export function compile(glossary: Term[], never: Term[]): Compiled {
-  const toRes = (t: Term) => (t.aliases.length ? t.aliases : [t.term]).filter((a) => a.trim().length >= 2).map(wordRe);
+export function compile(glossary: Term[], never: Term[], listen: Term[] = [], categoryWords: Term[] = []): Compiled {
+  const toRes = (t: Term) => [t.term, ...t.aliases].filter((a) => a.trim().length >= 2).map(wordRe);
+  const keys = Object.keys(CATEGORY_WORDS) as CategoryKey[];
+  const own = categoryWords.filter((w) => w.category && keys.includes(w.category));
   return {
     glossary: glossary.map((t) => ({ term: t.term, res: toRes(t) })),
+    listen: listen.filter((t) => t.category).map((t) => ({ term: t.term, category: t.category!, res: toRes(t) })),
     never: never.map((t) => ({ term: t.term, res: toRes(t) })),
-    categories: (Object.keys(CATEGORY_WORDS) as CategoryKey[]).map((k) => [k, CATEGORY_WORDS[k].map(wordRe)]),
+    categories: keys.map((k) => [
+      k,
+      own.length ? own.filter((w) => w.category === k).flatMap(toRes) : CATEGORY_WORDS[k].map(wordRe),
+    ]),
     south: GLOBAL_SOUTH.map(wordRe),
   };
 }
@@ -100,11 +108,13 @@ export type Score = {
 
 export function score(c: Compiled, text: string): Score {
   const never = c.never.find((n) => n.res.some((r) => r.test(text)));
-  const terms = c.glossary.filter((g) => g.res.some((r) => r.test(text))).map((g) => g.term);
+  const heard = c.listen.filter((l) => l.res.some((r) => r.test(text)));
+  const terms = [...heard.map((l) => l.term), ...c.glossary.filter((g) => g.res.some((r) => r.test(text))).map((g) => g.term)];
   let best: CategoryKey = "zei";
   let bestHits = 0;
   for (const [k, res] of c.categories) {
-    const hits = res.filter((r) => r.test(text)).length;
+    // A listen word counts as three category words, so it steers the category.
+    const hits = res.filter((r) => r.test(text)).length + heard.filter((l) => l.category === k).length * 3;
     if (hits > bestHits) {
       best = k;
       bestHits = hits;
@@ -112,7 +122,7 @@ export function score(c: Compiled, text: string): Score {
   }
   const south = c.south.some((r) => r.test(text));
   const regions = REGION_TAGS.filter(([, r]) => r.test(text)).map(([t]) => t);
-  const fit = never ? 0 : Math.min(100, Math.min(terms.length, 2) * 35 + Math.min(bestHits, 5) * 10 + (south ? 20 : 0));
+  const fit = never ? 0 : Math.min(100, Math.min(terms.length, 2) * 35 + Math.min(bestHits - heard.filter((l) => l.category === best).length * 3, 5) * 10 + (south ? 20 : 0));
   const matched = [...terms.slice(0, 4).map((t) => t.split(" (")[0].trim()), ...(south ? ["Global South lens"] : [])];
   const tags = [...regions, ...terms.map((t) => t.split(" (")[0])]
     .map((t) => t.replace(/[^\p{L}\p{N}]+/gu, ""))

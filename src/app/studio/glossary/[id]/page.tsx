@@ -16,7 +16,7 @@ export default async function EditTerm({ params, searchParams }: { params: Promi
     if (!/^[0-9a-f-]{36}$/.test(id)) notFound();
     const { data } = await supabase
       .from("concha_terms")
-      .select("id, term, slug, aliases, definition, category, published, updated_at")
+      .select("id, term, slug, aliases, definition, category, image_url, published, updated_at")
       .eq("id", id)
       .eq("kind", "glossary")
       .maybeSingle();

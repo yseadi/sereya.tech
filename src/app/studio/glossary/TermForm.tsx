@@ -7,6 +7,7 @@ import type { GlossaryTerm } from "@/lib/types";
 import { deleteTerm } from "../concha-actions";
 import { saveTerm, type TermState } from "../glossary-actions";
 import { RichEditor } from "@/components/RichEditor";
+import { CoverField } from "./CoverField";
 
 type Props = { term?: GlossaryTerm; justSaved?: boolean; onDone?: (r: { slug?: string; deleted?: boolean }) => void; onCancel?: () => void };
 
@@ -48,6 +49,7 @@ export function TermForm({ term, justSaved, onDone, onCancel }: Props) {
           <input id="aliases" name="aliases" className="input" defaultValue={term?.aliases.join(", ")} placeholder="English versions, synonyms, comma separated" />
           <span className="hint">Concha also listens for these in the news.</span>
         </div>
+        <CoverField initial={term?.image_url ?? ""} />
         <div className="field full">
           <label htmlFor="definition">Your text</label>
           <RichEditor

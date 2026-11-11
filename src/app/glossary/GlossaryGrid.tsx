@@ -58,6 +58,19 @@ export function GlossaryGrid({ terms, isOwner }: { terms: GlossaryTerm[]; isOwne
         {shown.map((t) => (
           <div key={t.id} className={`term-wrap${t.published ? "" : " hidden-card"}`}>
           <Link href={`/glossary/${t.slug}`} className="card post-card term-card">
+            <div
+              className={`ph${t.image_url ? "" : " empty"}`}
+              style={t.category ? { background: `linear-gradient(135deg, ${CATEGORIES[t.category].bg}, #ffffff 55%, ${CATEGORIES[t.category].bg})` } : undefined}
+            >
+              {t.image_url ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={t.image_url} alt="" loading="lazy" />
+              ) : (
+                <span className="term-initial" aria-hidden="true" style={t.category ? { color: CATEGORIES[t.category].dot } : undefined}>
+                  {t.term.trim().charAt(0)}
+                </span>
+              )}
+            </div>
             <div className="body">
               {t.category && (
                 <span className="pill" style={{ background: CATEGORIES[t.category].bg, color: CATEGORIES[t.category].text, alignSelf: "flex-start" }}>
