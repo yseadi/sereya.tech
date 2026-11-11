@@ -9,6 +9,8 @@ export const dynamic = "force-dynamic";
 
 const PAGE = 24;
 
+const SHOW_FORMATS = false;
+
 export default async function SignalsPage({ searchParams }: { searchParams: Promise<{ cat?: string; fmt?: string; tag?: string; page?: string }> }) {
   const sp = await searchParams;
   const { supabase, user } = await getViewer();
@@ -46,7 +48,7 @@ export default async function SignalsPage({ searchParams }: { searchParams: Prom
           her take. <Link href="/categories" className="inline-link">What each category means →</Link>
         </p>
       </div>
-      <nav aria-label="Filter by category" className="chips" style={{ marginBottom: 10 }}>
+      <nav aria-label="Filter by category" className="chips" style={{ marginBottom: SHOW_FORMATS ? 10 : 28 }}>
         <Link href={href({ fmt, tag })} className="chip" aria-current={!cat ? "true" : undefined}>All</Link>
         {CATEGORY_KEYS.map((k) => (
           <Link key={k} href={href({ cat: k, fmt, tag })} className="chip" aria-current={cat === k ? "true" : undefined}>
@@ -55,12 +57,13 @@ export default async function SignalsPage({ searchParams }: { searchParams: Prom
           </Link>
         ))}
       </nav>
-      <nav aria-label="Filter by format" className="chips" style={{ marginBottom: 28 }}>
+      {/* Format filters (News, Essay, Report) are hidden for now, as Yasmim asked. */}
+      {SHOW_FORMATS && <nav aria-label="Filter by format" className="chips" style={{ marginBottom: 28 }}>
         <Link href={href({ cat, tag })} className="chip" aria-current={!fmt ? "true" : undefined}>Every format</Link>
         {FORMATS.map((f) => (
           <Link key={f} href={href({ cat, fmt: f, tag })} className="chip" aria-current={fmt === f ? "true" : undefined}>{f}</Link>
         ))}
-      </nav>
+      </nav>}
       {tag && (
         <div className="tag-filter" role="status">
           <span>Showing signals tagged</span>

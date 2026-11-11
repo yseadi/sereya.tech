@@ -20,7 +20,7 @@ export function PostCard({ post, showCounts, href }: { post: PostWithCounts; sho
                 <img src={post.image_url} alt="" loading="lazy" />
               ) : null}
             </span>
-            <span className="stamp">{post.pdf_url ? "PDF" : "Report"}</span>
+            {post.pdf_url ? <span className="stamp">PDF</span> : null}
           </>
         ) : post.image_url ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -31,7 +31,6 @@ export function PostCard({ post, showCounts, href }: { post: PostWithCounts; sho
       <div className="body">
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
           <CategoryPill category={post.category} />
-          <span className="pill" style={{ background: "#f5f6f6", color: "#5a6567" }}>{post.format}</span>
         </div>
         <h3><span className="t">{post.title}</span></h3>
         {post.dek && <p className="dek">{post.dek}</p>}

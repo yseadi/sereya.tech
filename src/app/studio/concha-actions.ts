@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { isCategory } from "@/lib/categories";
 import { createClient } from "@/lib/supabase/server";
 import { fetchText } from "@/lib/concha/feed";
 import { runConcha } from "@/lib/concha/run";
@@ -97,7 +98,12 @@ export async function deleteSource(id: string): Promise<Result> {
   return {};
 }
 
-export async function addTerm(kind: "glossary" | "never", term: string, aliases: string): Promise<Result> {
+export async function addTerm(
+  kind: "glossary" | "never" | "listen" | "category",
+  term: string,
+  aliases: string,
+  category?: string,
+): Promise<Result> {
   const { supabase, ok } = await owner();
   if (!ok) return { error: "Only Yasmim can do this." };
   const t = term.trim();
@@ -107,7 +113,11 @@ export async function addTerm(kind: "glossary" | "never", term: string, aliases:
     .map((a) => a.trim())
     .filter(Boolean)
     .slice(0, 12);
-  const { error } = await supabase.from("concha_terms").insert({ kind, term: t, aliases: list });
+  const needsCategory = kind === "listen" || kind === "category";
+  if (needsCategory && !isCategory(category)) return { error: "Pick a category." };
+  const { error } = await supabase
+    .from("concha_terms")
+    .insert({ kind, term: t.slice(0, 120), aliases: list, ...(needsCategory ? { category } : {}) });
   if (error) return { error: error.code === "23505" ? "It’s already there." : "Couldn’t add it." };
   refresh();
   return {};

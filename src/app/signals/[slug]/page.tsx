@@ -77,7 +77,6 @@ export default async function PostPage({ params }: Params) {
         <header className="post-head">
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
             <CategoryPill category={post.category} explain />
-            <span className="pill" style={{ background: "#ffffff", color: "#5a6567", border: "1px solid #eceeee" }}>{post.format}</span>
             {post.is_pearl && <span className="pill" style={{ background: "#f1ecfb", color: "#5b4a9e" }}>Pearl of the day</span>}
           </div>
           <h1>{post.title}</h1>
