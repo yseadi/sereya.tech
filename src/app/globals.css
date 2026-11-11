@@ -592,3 +592,30 @@ a.tag-pill:hover { background: #f1ecfb; color: #4a3a8a; }
 .legal-body { padding: clamp(22px, 4vw, 40px); }
 .legal-body h2 { font-size: 22px; margin-top: 22px; }
 .legal-body p, .legal-body ul { font-size: 17px; }
+
+/* ---------- Clusters ---------- */
+.cluster-band h1 { overflow-wrap: anywhere; }
+.cluster-join { margin-top: 20px; padding: 20px 24px; display: flex; gap: 16px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+.cluster-join p { margin-top: 4px; }
+.cluster-panel { margin-top: 12px; padding: 20px; display: flex; flex-direction: column; gap: 12px; }
+.cluster-found { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; }
+.cluster-found li { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-top: 1px solid #f0f1f1; }
+.cluster-found li:first-child { border-top: 0; }
+.cluster-found .t { flex: 1; min-width: 0; }
+.cluster-new { padding: 20px; display: flex; gap: 14px; flex-wrap: wrap; align-items: flex-start; margin-bottom: 20px; }
+.cluster-new .field { margin: 0; }
+.cluster-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; }
+.cluster-list li { padding: 16px 20px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.cluster-list .name { font-size: 20px; font-weight: 500; color: var(--ink); text-decoration: none; }
+.cluster-list .name:hover { color: #4a3a8a; }
+.cluster-list .actions { margin-left: auto; display: flex; gap: 8px; }
+.cluster-pick { position: relative; }
+.cluster-menu {
+  position: absolute; right: 0; top: calc(100% + 8px); z-index: 50; width: min(320px, 86vw);
+  background: #fff; color: var(--ink); border-radius: 18px; padding: 14px; border: 1px solid #eceeee;
+  box-shadow: 0 18px 48px rgba(31,42,44,.16); display: flex; flex-direction: column; gap: 10px;
+}
+.cluster-menu ul { list-style: none; margin: 0; padding: 0; max-height: 240px; overflow-y: auto; }
+.cluster-menu li { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 4px 0; }
+.cluster-menu form { display: flex; gap: 8px; }
+.cluster-menu form .input { height: 38px; font-size: 14px; }

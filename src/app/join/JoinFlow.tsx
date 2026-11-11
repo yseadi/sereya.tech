@@ -16,9 +16,11 @@ type Props = {
   inviteRequired: boolean;
   initialCategories: CategoryKey[];
   initialRegions: string[];
+  next?: string;
+  cluster?: { slug: string; name: string } | null;
 };
 
-export function JoinFlow({ signedIn, name, inviteRequired, initialCategories, initialRegions }: Props) {
+export function JoinFlow({ signedIn, name, inviteRequired, initialCategories, initialRegions, next: nextPath, cluster }: Props) {
   const router = useRouter();
   const [step, setStep] = useState(signedIn ? 2 : 1);
   const [cats, setCats] = useState<CategoryKey[]>(initialCategories);
@@ -43,7 +45,7 @@ export function JoinFlow({ signedIn, name, inviteRequired, initialCategories, in
       startSaving(async () => {
         const res = await saveUniverse({ categories: cats, regions });
         if (res.error) return setError(res.error);
-        router.push("/welcome");
+        router.push(nextPath || "/welcome");
       });
     }
   }
@@ -68,10 +70,15 @@ export function JoinFlow({ signedIn, name, inviteRequired, initialCategories, in
           <section className="intro band" style={{ display: "flex", flexDirection: "column" }}>
             <p className="eyebrow">Join Sereya</p>
             <h1>Create your account</h1>
-            <p>Sereya is free. Pick what you want to follow in the next step.</p>
+            {cluster ? (
+              <p>Yasmim put together “{cluster.name}” for you. Create your free account and the signals open right after.</p>
+            ) : (
+              <p>Sereya is free. Pick what you want to follow in the next step.</p>
+            )}
           </section>
           <form action={accountAction} className="card" noValidate>
             {accountState.error && <p className="error" role="alert">{accountState.error}</p>}
+            {cluster && <input type="hidden" name="cluster" value={cluster.slug} />}
             <div className="field">
               <label htmlFor="name">Your name</label>
               <input id="name" name="name" autoComplete="name" className="input" defaultValue={accountState.values?.name} required />
@@ -98,7 +105,7 @@ export function JoinFlow({ signedIn, name, inviteRequired, initialCategories, in
             </label>
             <Submit pendingText="Creating your account…">Continue</Submit>
             <p className="muted" style={{ fontSize: 15 }}>
-              Already a member? <Link href="/login">Log in</Link>
+              Already a member? <Link href={nextPath ? `/login?next=${encodeURIComponent(nextPath)}` : "/login"}>Log in</Link>
             </p>
           </form>
         </div>

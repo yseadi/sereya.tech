@@ -154,5 +154,27 @@ set local role anon;
 select pg_temp.expect_fail('select * from public.saved_posts', 'anon reads saves');
 reset role;
 
+-- Clusters: only the owner sees and edits them; a link shows one cluster with only published signals
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-0000-0000-00000000000a';
+insert into public.clusters (id, slug, name) values ('00000000-0000-0000-0000-0000000000f1', 'isabela-abc123', 'Isabela');
+insert into public.cluster_posts (cluster_id, post_id) select '00000000-0000-0000-0000-0000000000f1', id from public.posts where status = 'published' limit 2;
+insert into public.cluster_posts (cluster_id, post_id) values ('00000000-0000-0000-0000-0000000000f1', '00000000-0000-0000-0000-0000000000e1');
+reset role;
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-0000-0000-00000000000b';
+do $$ begin
+  if exists (select 1 from public.clusters) then raise exception 'member lists clusters'; end if;
+end $$;
+select pg_temp.expect_fail($q$insert into public.clusters (slug, name) values ('member-x1', 'x')$q$, 'member creates cluster');
+reset role;
+set local role anon;
+select pg_temp.expect_fail('select * from public.clusters', 'anon lists clusters');
+do $$ begin
+  if jsonb_array_length(public.cluster_by_slug('isabela-abc123') -> 'post_ids') <> 2 then raise exception 'cluster link should show 2 published signals'; end if;
+  if public.cluster_by_slug('nao-existe') is not null then raise exception 'unknown cluster returned'; end if;
+end $$;
+reset role;
+
 select 'ALL RLS CHECKS PASSED' as result;
 rollback;

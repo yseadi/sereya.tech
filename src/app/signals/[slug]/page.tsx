@@ -10,6 +10,7 @@ import { getComments, likeCount, postSelect } from "@/lib/posts";
 import type { PostWithCounts } from "@/lib/types";
 import { Comments } from "./Comments";
 import { OwnerTools } from "./OwnerTools";
+import { AddToCluster } from "./AddToCluster";
 import { PostLike } from "./PostLike";
 import { SaveButton } from "./SaveButton";
 import { formatSize } from "@/lib/size";
@@ -54,10 +55,24 @@ export default async function PostPage({ params }: Params) {
     saved = !!save;
     comments = rows;
   }
+  let clusters: { id: string; slug: string; name: string }[] = [];
+  let inClusters: string[] = [];
+  if (isOwner) {
+    const [{ data: cl }, { data: cp }] = await Promise.all([
+      supabase.from("clusters").select("id, slug, name").order("updated_at", { ascending: false }),
+      supabase.from("cluster_posts").select("cluster_id").eq("post_id", post.id),
+    ]);
+    clusters = cl ?? [];
+    inClusters = (cp ?? []).map((r) => r.cluster_id);
+  }
 
   return (
     <div className="wrap narrow">
-      {isOwner && <OwnerTools id={post.id} slug={post.slug} take={post.take} status={post.status} hasBody={!!post.body} />}
+      {isOwner && (
+        <OwnerTools id={post.id} slug={post.slug} take={post.take} status={post.status} hasBody={!!post.body}>
+          {post.status === "published" && <AddToCluster postId={post.id} clusters={clusters} inside={inClusters} />}
+        </OwnerTools>
+      )}
       <article>
         <header className="post-head">
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>

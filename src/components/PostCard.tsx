@@ -7,10 +7,10 @@ import { IconComment, IconHeart } from "./Icons";
 import { SourceMark } from "./SourceMark";
 
 /** One card per format: News has a wide photo, Essay a taller magazine photo, Report a printed cover. */
-export function PostCard({ post, showCounts }: { post: PostWithCounts; showCounts: boolean }) {
+export function PostCard({ post, showCounts, href }: { post: PostWithCounts; showCounts: boolean; href?: string }) {
   const fmt = post.format.toLowerCase();
   return (
-    <Link href={`/signals/${post.slug}`} className={`card post-card ${fmt}`}>
+    <Link href={href ?? `/signals/${post.slug}`} className={`card post-card ${fmt}`}>
       <div className="ph">
         {fmt === "report" ? (
           <>
