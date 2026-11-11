@@ -65,6 +65,7 @@ export interface GlossaryTerm {
   aliases: string[];
   definition: string;
   category: CategoryKey | null;
+  image_url: string;
   published: boolean;
   updated_at: string;
 }

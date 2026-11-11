@@ -17,7 +17,7 @@ async function load(slug: string) {
   const { supabase, user, profile } = await getViewer();
   const { data } = await supabase
     .from("concha_terms")
-    .select("id, term, slug, aliases, definition, category, published, updated_at")
+    .select("id, term, slug, aliases, definition, category, image_url, published, updated_at")
     .eq("kind", "glossary")
     .eq("slug", slug)
     .maybeSingle();
@@ -59,10 +59,25 @@ export default async function TermPage({ params }: Params) {
       <article>
         <header className="post-head">
           <Link href="/glossary" className="eyebrow" style={{ textDecoration: "none" }}>← Glossary</Link>
-          {term.category && <CategoryPill category={term.category} explain />}
+          {term.category && (
+            <div>
+              <CategoryPill category={term.category} explain />
+            </div>
+          )}
           <h1>{term.term}</h1>
           {term.aliases.length > 0 && <p className="muted">Also: {term.aliases.join(", ")}</p>}
         </header>
+        {term.image_url && (
+          <>
+            <figure className="term-cover">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={term.image_url} alt="" />
+            </figure>
+            {term.image_url.startsWith("https://upload.wikimedia.org/") && (
+              <p className="term-cover-credit">Photo: Wikimedia Commons</p>
+            )}
+          </>
+        )}
         <div className="take" style={{ marginTop: 28 }}>
           <div className="who">
             <Pearl size={44} />
@@ -72,7 +87,7 @@ export default async function TermPage({ params }: Params) {
             </div>
           </div>
           <div className="post-body" style={{ margin: 0 }}>
-            <RichText text={term.definition} empty={<p className="muted">Yasmim is still writing this card.</p>} />
+            <RichText text={withoutCover(term.definition, term.image_url)} empty={<p className="muted">Yasmim is still writing this card.</p>} />
           </div>
         </div>
       </article>
@@ -88,4 +103,10 @@ export default async function TermPage({ params }: Params) {
       )}
     </div>
   );
+}
+
+/** The cover already shows the card's first picture, so it isn't repeated in the text. */
+function withoutCover(text: string, cover: string) {
+  if (!cover) return text;
+  return text.replace(/^!\[[^\]\n]*\]\(([^)\s]+)\)\s*$/m, (line, src) => (src === cover ? "" : line));
 }

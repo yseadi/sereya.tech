@@ -471,8 +471,12 @@ main > .wrap > *:nth-child(n + 5) { animation-delay: 0.2s; }
 
 /* Glossary cards: text only, a pearly wash on top. */
 .term-card { background: linear-gradient(180deg, #fbf9fe 0%, #ffffff 40%); }
-.term-card .body { padding-top: 24px; }
-.term-card .dek { -webkit-line-clamp: 5; }
+.term-card .dek { -webkit-line-clamp: 3; }
+.term-card .ph.empty { display: flex; align-items: center; justify-content: center; }
+.term-initial { font-size: 72px; font-weight: 500; opacity: .55; line-height: 1; }
+.term-cover { margin: 8px 0 28px; border-radius: 24px; overflow: hidden; aspect-ratio: 16 / 7; background: #eef0f0; }
+.term-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.term-cover-credit { font-size: 12px; color: var(--muted); margin: -20px 0 24px; }
 
 /* Rich text: Yasmim's titles, quotes and lists, and the formatting bar in the Studio. */
 .post-body h2.rt-h1 { font-size: 32px; font-weight: 600; letter-spacing: -0.01em; margin-top: 18px; }
@@ -619,3 +623,8 @@ a.tag-pill:hover { background: #f1ecfb; color: #4a3a8a; }
 .cluster-menu li { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 4px 0; }
 .cluster-menu form { display: flex; gap: 8px; }
 .cluster-menu form .input { height: 38px; font-size: 14px; }
+.cat-words-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 14px; }
+.cat-words { padding: 18px; display: flex; flex-direction: column; gap: 12px; }
+.cover-field { display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-start; }
+.cover-preview { width: 220px; aspect-ratio: 16 / 9; border-radius: 14px; overflow: hidden; background: #f1f2f2; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.cover-preview img { width: 100%; height: 100%; object-fit: cover; }

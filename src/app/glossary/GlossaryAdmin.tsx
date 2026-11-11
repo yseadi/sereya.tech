@@ -2,8 +2,9 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
+import { createPortal } from "react-dom";
 import { deleteTerm } from "@/app/studio/concha-actions";
-import { setTermPublished } from "@/app/studio/glossary-actions";
+import { fillMissingCovers, setTermPublished } from "@/app/studio/glossary-actions";
 import { TermForm } from "@/app/studio/glossary/TermForm";
 import type { GlossaryTerm } from "@/lib/types";
 
@@ -19,7 +20,8 @@ export function TermEditorModal({ term, onClose, after }: { term?: GlossaryTerm;
       document.body.style.overflow = "";
     };
   }, [onClose]);
-  return (
+  // Rendered on <body> so no parent bar (blur, rounded corners) can clip it.
+  return createPortal(
     <div className="modal-back" role="dialog" aria-modal="true" aria-label={term ? `Edit ${term.term}` : "New glossary card"} onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
       <div className="modal-box">
         <h2 style={{ fontSize: 22, fontWeight: 500, marginBottom: 14 }}>{term ? `Edit “${term.term}”` : "New card"}</h2>
@@ -33,7 +35,8 @@ export function TermEditorModal({ term, onClose, after }: { term?: GlossaryTerm;
           }}
         />
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
 
@@ -104,5 +107,39 @@ export function NewTermButton() {
       <button type="button" className="btn" onClick={() => setOpen(true)}>+ New card</button>
       {open && <TermEditorModal onClose={() => setOpen(false)} after={(r) => (r.slug ? router.push(`/glossary/${r.slug}`) : router.refresh())} />}
     </>
+  );
+}
+
+/** Owner: look on Wikipedia for a cover for every card that has none, a few at a time. */
+export function FillCovers({ missing }: { missing: number }) {
+  const router = useRouter();
+  const [msg, setMsg] = useState<string | null>(null);
+  const [pending, start] = useTransition();
+  return (
+    <span style={{ display: "inline-flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
+      <button
+        type="button"
+        className="btn ghost"
+        disabled={pending}
+        onClick={() =>
+          start(async () => {
+            let found = 0;
+            for (let round = 0; round < 30; round++) {
+              const r = await fillMissingCovers();
+              if (r.error) return setMsg(r.error);
+              found += r.found;
+              setMsg(`Looking on Wikipedia… ${found} photos found, ${r.left} cards left to try.`);
+              router.refresh();
+              if (!r.tried || !r.left) break;
+            }
+            setMsg(`Done: ${found} new cover photos. Cards still without one keep their colour; open them to upload a photo.`);
+            router.refresh();
+          })
+        }
+      >
+        {pending ? "Finding photos…" : `Find cover photos (${missing} without)`}
+      </button>
+      {msg && <span className="muted" role="status" style={{ fontSize: 14 }}>{msg}</span>}
+    </span>
   );
 }

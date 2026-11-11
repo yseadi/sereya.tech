@@ -69,13 +69,15 @@ export async function runConcha(trigger: "schedule" | "manual"): Promise<RunSumm
 
   const [{ data: sources }, { data: terms }, { data: auto }] = await Promise.all([
     db.from("sources").select("id, name, feed_url, full_text, license_note").eq("active", true),
-    db.from("concha_terms").select("kind, term, aliases"),
+    db.from("concha_terms").select("kind, term, aliases, category"),
     db.from("settings").select("value").eq("key", "concha_autopublish").maybeSingle(),
   ]);
   const autopublish = auto?.value === true;
   const compiled = compile(
     (terms ?? []).filter((t) => t.kind === "glossary") as Term[],
     (terms ?? []).filter((t) => t.kind === "never") as Term[],
+    (terms ?? []).filter((t) => t.kind === "listen") as Term[],
+    (terms ?? []).filter((t) => t.kind === "category") as Term[],
   );
 
   const summary: RunSummary = { sources_read: 0, items_read: 0, kept: 0, published: 0, skipped: 0, errors: [] };
