@@ -377,7 +377,7 @@ function PersonCard({
       </div>
       <label className="festa-field festa-field--name">
         <span>
-          🪪 nome completo <em>(nome e sobrenome, vai pra portaria)</em>
+          🪪 nome e sobrenome, vai pra portaria
         </span>
         <input
           value={person.full_name}
