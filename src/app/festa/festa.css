@@ -706,3 +706,53 @@
   box-shadow: 0 10px 26px rgba(91, 74, 158, 0.12);
 }
 .festa-wide img { width: 100%; height: auto; display: block; }
+
+/* Deadline pill under the form title */
+.festa-deadline { text-align: center; margin-top: 6px; font-size: 14px; color: var(--f-ink-2); }
+.festa-deadline strong { color: var(--f-lilac-deep); }
+
+/* Name field: the gate needs it, so it stands out */
+.festa-field--name > span { display: block; font-size: 13px; font-weight: 600; color: var(--f-lilac-deep); margin: 0 4px 2px; }
+.festa-field--name > span em { font-weight: 400; color: var(--f-ink-2); }
+.festa-field--name input { border: 2px solid var(--f-lilac); font-weight: 500; }
+
+/* Tap-to-agree cards ("combinados") */
+.festa-acks { display: grid; gap: 10px; margin-top: 18px; }
+.festa-acks .festa-mini { margin: 0 4px; }
+.festa-ack {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  text-align: left;
+  border: 2px solid #ece7f7;
+  background: #faf8fe;
+  border-radius: 20px;
+  padding: 14px 14px;
+  font-size: 15px;
+  line-height: 1.4;
+  color: var(--f-ink);
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(91, 74, 158, 0.08);
+  transition: transform 0.25s cubic-bezier(0.2, 1.6, 0.4, 1), background 0.25s, border-color 0.25s, box-shadow 0.25s;
+}
+.festa-ack:active { transform: scale(0.97); }
+.festa-ack-emoji { font-size: 26px; flex: none; transition: transform 0.35s cubic-bezier(0.2, 1.6, 0.4, 1); }
+.festa-ack-text { flex: 1; }
+.festa-ack-tick {
+  flex: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 2px solid #d9d1ee;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  color: #fff;
+  transition: background 0.25s, border-color 0.25s, transform 0.35s cubic-bezier(0.2, 1.6, 0.4, 1);
+}
+.festa-ack.is-on { background: #f1ecfb; border-color: var(--f-lilac); box-shadow: 0 8px 22px rgba(91, 74, 158, 0.16); }
+.festa-ack.is-on .festa-ack-emoji { transform: scale(1.15) rotate(-8deg); }
+.festa-ack.is-on .festa-ack-tick { background: var(--f-lilac-deep); border-color: var(--f-lilac-deep); transform: scale(1.1); }
+.festa-slide.is-locked { opacity: 0.6; }
+.festa-slide.is-locked .festa-slide-knob { animation: none; }
