@@ -47,6 +47,7 @@ export type FestaPerson = {
   soda: boolean;
   gluten_free: boolean;
   diet_note: string;
+  kid_food?: string;
 };
 
 export type FestaAnswer = {

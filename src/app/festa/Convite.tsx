@@ -15,6 +15,7 @@ const blankPerson = (is_child = false): FestaPerson => ({
   soda: false,
   gluten_free: false,
   diet_note: "",
+  kid_food: "",
 });
 
 const daysUntil = (iso: string) => Math.ceil((new Date(iso).getTime() - Date.now()) / 86_400_000);
@@ -412,6 +413,16 @@ function PersonCard({
           placeholder="alguma alergia ou restrição? (opcional)"
         />
       </label>
+      {person.is_child && (
+        <label className="festa-field festa-field--kid">
+          <span>🍽️ o que a criança come?</span>
+          <input
+            value={person.kid_food || ""}
+            onChange={(e) => onChange({ kid_food: e.target.value })}
+            placeholder="ex: come de tudo, só papinha, não come carne…"
+          />
+        </label>
+      )}
     </li>
   );
 }

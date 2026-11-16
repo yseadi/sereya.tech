@@ -11,11 +11,11 @@ const cell = (v: unknown) => {
 export async function GET() {
   const { rsvps } = await loadLista();
   const rows: unknown[][] = [
-    ["nome completo", "vai", "criança", "idade", "vinho", "refri", "sem glúten", "restrição", "quem respondeu", "whatsapp", "recado", "respondido em"],
+    ["nome completo", "vai", "criança", "idade", "vinho", "refri", "sem glúten", "restrição", "o que a criança come", "quem respondeu", "whatsapp", "recado", "respondido em"],
   ];
   for (const r of rsvps) {
     if (!r.going) {
-      rows.push([r.contact_name, "não", "", "", "", "", "", "", r.contact_name, r.phone, r.message, fmtWhen(r.created_at)]);
+      rows.push([r.contact_name, "não", "", "", "", "", "", "", "", r.contact_name, r.phone, r.message, fmtWhen(r.created_at)]);
       continue;
     }
     for (const p of r.festa_people) {
@@ -28,6 +28,7 @@ export async function GET() {
         p.soda ? "sim" : "",
         p.gluten_free ? "sim" : "",
         p.diet_note,
+        p.kid_food,
         r.contact_name,
         r.phone,
         r.message,

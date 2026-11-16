@@ -666,3 +666,5 @@
   body[data-print="portaria"] .lista > *:not(.lista-portaria) { display: none !important; }
   body[data-print="portaria"] .lista-portaria .lista-print-head { display: block; margin-bottom: 10px; }
 }
+.festa-field--kid { margin-top: 10px !important; background: #fff; border-radius: 16px; padding: 10px 12px 12px; color: var(--f-ink); font-weight: 600; animation: festa-pop 0.4s cubic-bezier(0.2, 1.5, 0.4, 1) both; }
+.festa-field--kid input { font-weight: 400; }

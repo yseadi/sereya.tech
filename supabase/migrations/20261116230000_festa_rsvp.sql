@@ -23,6 +23,8 @@ create table if not exists public.festa_people (
   gluten_free boolean not null default false,
   diet_note text not null default '' check (char_length(diet_note) <= 300)
 );
+-- What a child eats (asked only for children).
+alter table public.festa_people add column if not exists kid_food text not null default '' check (char_length(kid_food) <= 300);
 create index if not exists festa_people_rsvp_idx on public.festa_people (rsvp_id);
 
 alter table public.festa_rsvps enable row level security;
@@ -44,7 +46,7 @@ create policy "owner deletes festa people" on public.festa_people
 revoke all on public.festa_rsvps, public.festa_people from anon, authenticated;
 grant select, delete on public.festa_rsvps, public.festa_people to authenticated;
 
--- One answer from a guest: { replaces?, going, contact_name, phone, message, people: [{ full_name, is_child, child_age, wine, soda, gluten_free, diet_note }] }
+-- One answer from a guest: { replaces?, going, contact_name, phone, message, people: [{ full_name, is_child, child_age, wine, soda, gluten_free, diet_note, kid_food }] }
 create or replace function public.festa_rsvp(p jsonb)
 returns uuid
 language plpgsql
@@ -92,7 +94,7 @@ begin
     for v_person in select * from jsonb_array_elements(v_people) loop
       v_age := nullif(v_person ->> 'child_age', '')::int;
       if v_age is not null and (v_age < 0 or v_age > 17) then v_age := null; end if;
-      insert into public.festa_people (rsvp_id, position, full_name, is_child, child_age, wine, soda, gluten_free, diet_note)
+      insert into public.festa_people (rsvp_id, position, full_name, is_child, child_age, wine, soda, gluten_free, diet_note, kid_food)
       values (
         v_id,
         v_pos,
@@ -102,7 +104,9 @@ begin
         coalesce((v_person ->> 'wine')::boolean, false) and not coalesce((v_person ->> 'is_child')::boolean, false),
         coalesce((v_person ->> 'soda')::boolean, false),
         coalesce((v_person ->> 'gluten_free')::boolean, false),
-        left(btrim(coalesce(v_person ->> 'diet_note', '')), 300)
+        left(btrim(coalesce(v_person ->> 'diet_note', '')), 300),
+        case when coalesce((v_person ->> 'is_child')::boolean, false)
+          then left(btrim(coalesce(v_person ->> 'kid_food', '')), 300) else '' end
       );
       v_pos := v_pos + 1;
     end loop;

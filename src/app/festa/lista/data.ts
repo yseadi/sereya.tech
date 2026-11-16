@@ -11,6 +11,7 @@ export type ListaPerson = {
   soda: boolean;
   gluten_free: boolean;
   diet_note: string;
+  kid_food: string;
 };
 export type ListaRsvp = {
   id: string;
@@ -38,6 +39,7 @@ export async function loadLista() {
     .flatMap((r) => r.festa_people.map((p) => ({ ...p, group: r.contact_name })))
     .sort((a, b) => a.full_name.localeCompare(b.full_name, "pt-BR"));
   const kids = people.filter((p) => p.is_child);
+  
   return {
     rsvps,
     going,

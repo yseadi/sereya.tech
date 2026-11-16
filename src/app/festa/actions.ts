@@ -18,6 +18,7 @@ export async function sendRsvp(answer: FestaAnswer): Promise<{ ok: true; id: str
     soda: !!p?.soda,
     gluten_free: !!p?.gluten_free,
     diet_note: clean(p?.diet_note, 300),
+    kid_food: p?.is_child ? clean(p?.kid_food, 300) : "",
   }));
   const contact = going ? people[0]?.full_name || "" : clean(answer?.contact_name, 140);
   if (contact.split(" ").length < 2) return { ok: false, error: "Coloca seu nome completo, por favor (é pra portaria)." };

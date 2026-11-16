@@ -62,6 +62,20 @@ export default async function ListaPage() {
         </table>
       </section>
 
+      {people.some((p) => p.is_child) && (
+        <section className="lista-section">
+          <h2>🧒 o que as crianças comem ({people.filter((p) => p.is_child).length})</h2>
+          <table className="lista-table">
+            <thead><tr><th>criança</th><th>idade</th><th>come</th></tr></thead>
+            <tbody>
+              {people.filter((p) => p.is_child).map((p) => (
+                <tr key={p.id}><td>{p.full_name}</td><td>{p.child_age ?? ""}</td><td>{p.kid_food || "—"}</td></tr>
+              ))}
+            </tbody>
+          </table>
+        </section>
+      )}
+
       {restrictions.length > 0 && (
         <section className="lista-section">
           <h2>🌾 restrições ({restrictions.length})</h2>
@@ -94,7 +108,7 @@ export default async function ListaPage() {
                     {p.full_name}
                     {p.is_child && <span className="lista-tag">criança{p.child_age !== null ? `, ${p.child_age}` : ""}</span>}
                     {p.gluten_free && <span className="lista-tag lista-tag--gf">sem glúten</span>}
-                    <small> · {drinks(p)}{p.diet_note ? ` · ${p.diet_note}` : ""}</small>
+                    <small> · {drinks(p)}{p.diet_note ? ` · ${p.diet_note}` : ""}{p.kid_food ? ` · come: ${p.kid_food}` : ""}</small>
                   </li>
                 ))}
               </ul>
