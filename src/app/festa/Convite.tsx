@@ -13,10 +13,14 @@ const blankPerson = (is_child = false): FestaPerson => ({
   child_age: "",
   wine: false,
   soda: false,
+  juice: false,
   gluten_free: false,
+  vegetarian: false,
   diet_note: "",
   kid_food: "",
 });
+
+const isTest = () => typeof window !== "undefined" && new URLSearchParams(window.location.search).has("teste");
 
 const daysUntil = (iso: string) => Math.ceil((new Date(iso).getTime() - Date.now()) / 86_400_000);
 
@@ -39,7 +43,7 @@ export function Convite() {
     setSaved(entry);
     setEditing(false);
     try {
-      localStorage.setItem(STORE_KEY, JSON.stringify(entry));
+      if (!isTest()) localStorage.setItem(STORE_KEY, JSON.stringify(entry));
     } catch {}
     if (answer.going) setConfetti((c) => c + 1);
     requestAnimationFrame(() => document.getElementById("resposta")?.scrollIntoView({ behavior: "smooth", block: "start" }));
@@ -199,6 +203,12 @@ function RsvpForm({
       return setError("Coloca seu nome completo, por favor.");
     }
     start(async () => {
+      // ?teste in the link shows the whole send flow without saving anything.
+      if (isTest()) {
+        await new Promise((r) => setTimeout(r, 900));
+        onSaved("teste", answer);
+        return;
+      }
       const res = await sendRsvp(answer);
       if (res.ok) onSaved(res.id, answer);
       else setError(res.error);
@@ -355,7 +365,9 @@ function PersonCard({
             type="button"
             className={`festa-pill${person.is_child ? " is-on" : ""}`}
             aria-pressed={person.is_child}
-            onClick={() => onChange({ is_child: !person.is_child, wine: person.is_child ? person.wine : false })}
+            onClick={() =>
+              onChange({ is_child: !person.is_child, wine: person.is_child ? person.wine : false, juice: person.is_child ? false : person.juice })
+            }
           >
             é criança
           </button>
@@ -393,6 +405,16 @@ function PersonCard({
         >
           🥤 refri
         </button>
+        {person.is_child && (
+          <button
+            type="button"
+            className={`festa-pill festa-pill--juice${person.juice ? " is-on" : ""}`}
+            aria-pressed={!!person.juice}
+            onClick={() => onChange({ juice: !person.juice })}
+          >
+            🧃 suco
+          </button>
+        )}
       </div>
       <p className="festa-mini">comida:</p>
       <div className="festa-row">
@@ -403,6 +425,14 @@ function PersonCard({
           onClick={() => onChange({ gluten_free: !person.gluten_free })}
         >
           🌾 celíaco / sem glúten
+        </button>
+        <button
+          type="button"
+          className={`festa-pill festa-pill--veg${person.vegetarian ? " is-on" : ""}`}
+          aria-pressed={!!person.vegetarian}
+          onClick={() => onChange({ vegetarian: !person.vegetarian })}
+        >
+          🥗 vegetariano
         </button>
       </div>
       <label className="festa-field festa-field--small">
@@ -552,7 +582,7 @@ function Thanks({ saved, onEdit }: { saved: { id: string; answer: FestaAnswer };
           <li key={i}>
             <span aria-hidden>{p.is_child ? "🧒" : "🧑"}</span> {p.full_name}
             <small>
-              {[p.wine && "🍷", p.soda && "🥤", p.gluten_free && "🌾 sem glúten"].filter(Boolean).join(" ")}
+              {[p.wine && "🍷", p.soda && "🥤", p.juice && "🧃", p.gluten_free && "🌾 sem glúten", p.vegetarian && "🥗 vegetariano"].filter(Boolean).join(" ")}
             </small>
           </li>
         ))}
@@ -576,6 +606,7 @@ function Thanks({ saved, onEdit }: { saved: { id: string; answer: FestaAnswer };
 function Gallery() {
   const all = [FESTA.heroPhoto, ...FESTA.photos];
   const [open, setOpen] = useState<number | null>(null);
+  const [at, setAt] = useState(0);
   const grid = useRef<HTMLDivElement>(null);
   const touch = useRef<number | null>(null);
 
@@ -614,13 +645,20 @@ function Gallery() {
   return (
     <section className="festa-gallery" aria-label="Fotos">
       <h2>um pouquinho do meu ano</h2>
-      <div ref={grid} className="festa-shots">
+      <div
+        ref={grid}
+        className="festa-shots"
+        onScroll={(e) => {
+          const el = e.currentTarget;
+          const first = el.firstElementChild as HTMLElement | null;
+          if (first) setAt(Math.round(el.scrollLeft / (first.offsetWidth + 12)));
+        }}
+      >
         {all.map((ph, i) => (
           <button
             key={ph.src}
             type="button"
-            className={`festa-shot${i === 0 ? " is-big" : ""}`}
-            style={{ transitionDelay: `${(i % 2) * 0.08}s` }}
+            className="festa-shot is-in"
             onClick={() => setOpen(i)}
             aria-label={`Ver foto: ${ph.caption}`}
           >
@@ -628,6 +666,11 @@ function Gallery() {
             <img src={ph.src} alt="" loading="lazy" style={{ objectPosition: ph.position }} />
             <span className="festa-shot-cap">{ph.caption}</span>
           </button>
+        ))}
+      </div>
+      <div className="festa-dots" aria-hidden>
+        {all.map((_, i) => (
+          <span key={i} className={i === at ? "is-on" : ""} />
         ))}
       </div>
       {open !== null && (
@@ -755,7 +798,7 @@ function Dj() {
       <div>
         <p className="festa-dj-kicker">🎧 vai ter som!</p>
         <h2>{FESTA.dj} tocando</h2>
-        <p className="festa-dj-sub">prepara a dancinha (e pode arranhar o disco 👆)</p>
+        <p className="festa-dj-sub">a trilha da tarde fica por conta dele</p>
       </div>
     </section>
   );

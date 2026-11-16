@@ -45,7 +45,9 @@ export type FestaPerson = {
   child_age: string;
   wine: boolean;
   soda: boolean;
+  juice?: boolean;
   gluten_free: boolean;
+  vegetarian?: boolean;
   diet_note: string;
   kid_food?: string;
 };

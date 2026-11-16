@@ -16,7 +16,9 @@ export async function sendRsvp(answer: FestaAnswer): Promise<{ ok: true; id: str
     child_age: /^\d{1,2}$/.test(String(p?.child_age ?? "")) ? Number(p.child_age) : null,
     wine: !!p?.wine && !p?.is_child,
     soda: !!p?.soda,
+    juice: !!p?.juice && !!p?.is_child,
     gluten_free: !!p?.gluten_free,
+    vegetarian: !!p?.vegetarian,
     diet_note: clean(p?.diet_note, 300),
     kid_food: p?.is_child ? clean(p?.kid_food, 300) : "",
   }));

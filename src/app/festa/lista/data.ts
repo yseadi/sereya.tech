@@ -9,7 +9,9 @@ export type ListaPerson = {
   child_age: number | null;
   wine: boolean;
   soda: boolean;
+  juice: boolean;
   gluten_free: boolean;
+  vegetarian: boolean;
   diet_note: string;
   kid_food: string;
 };
@@ -51,7 +53,9 @@ export async function loadLista() {
       kids: kids.length,
       wine: people.filter((p) => p.wine).length,
       soda: people.filter((p) => p.soda).length,
+      juice: people.filter((p) => p.juice).length,
       glutenFree: people.filter((p) => p.gluten_free).length,
+      vegetarian: people.filter((p) => p.vegetarian).length,
     },
   };
 }

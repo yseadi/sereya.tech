@@ -17,6 +17,9 @@
   --f-sky: #b7d3f4;
   --f-hand: "Rethink Sans", system-ui, sans-serif;
   position: relative;
+  overflow-x: clip;
+  width: 100%;
+  min-width: 0;
   max-width: 520px;
   margin: 0 auto;
   padding: 28px 16px 40px;
@@ -294,7 +297,20 @@
 
 /* ---------- Gallery ---------- */
 .festa-gallery { margin-top: 32px; }
-.festa-shots { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 16px; }
+.festa-shots {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  margin: 16px -16px 0;
+  padding: 4px 16px 18px;
+  scrollbar-width: none;
+}
+.festa-shots::-webkit-scrollbar { display: none; }
+.festa-shots .festa-shot { flex: 0 0 78%; scroll-snap-align: center; }
+.festa-dots { display: flex; justify-content: center; gap: 6px; }
+.festa-dots span { width: 6px; height: 6px; border-radius: 999px; background: #d9d1ee; transition: width 0.3s ease, background 0.3s ease; }
+.festa-dots span.is-on { width: 18px; background: var(--f-lilac-deep); }
 .festa-shot {
   position: relative;
   border: 0;
@@ -615,6 +631,7 @@
 
 /* ---------- Owner list ---------- */
 .lista {
+  width: 100%;
   max-width: 880px;
   margin: 0 auto;
   padding: 28px 16px 60px;
@@ -668,3 +685,6 @@
 }
 .festa-field--kid { margin-top: 10px !important; background: #fff; border-radius: 16px; padding: 10px 12px 12px; color: var(--f-ink); font-weight: 600; animation: festa-pop 0.4s cubic-bezier(0.2, 1.5, 0.4, 1) both; }
 .festa-field--kid input { font-weight: 400; }
+.festa-pill--juice.is-on { background: #fdf3df; border-color: #f0c870; }
+.festa-pill--veg.is-on { background: #e8f5f1; border-color: #8ccbb4; }
+.lista-tag--veg { background: #e8f5f1; }

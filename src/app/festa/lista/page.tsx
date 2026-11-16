@@ -8,11 +8,11 @@ import { PrintButtons } from "./PrintButtons";
 export const metadata: Metadata = { title: { absolute: "Lista da festa" }, robots: { index: false, follow: false } };
 export const dynamic = "force-dynamic";
 
-const drinks = (p: { wine: boolean; soda: boolean }) => [p.wine && "🍷 vinho", p.soda && "🥤 refri"].filter(Boolean).join(" · ") || "—";
+const drinks = (p: { wine: boolean; soda: boolean; juice: boolean }) => [p.wine && "🍷 vinho", p.soda && "🥤 refri", p.juice && "🧃 suco"].filter(Boolean).join(" · ") || "—";
 
 export default async function ListaPage() {
   const { going, notGoing, people, totals } = await loadLista();
-  const restrictions = people.filter((p) => p.gluten_free || p.diet_note);
+  const restrictions = people.filter((p) => p.gluten_free || p.vegetarian || p.diet_note);
 
   return (
     <div className="lista">
@@ -27,7 +27,9 @@ export default async function ListaPage() {
         <div className="lista-tile"><strong>{totals.kids}</strong><span>crianças</span></div>
         <div className="lista-tile"><strong>{totals.wine}</strong><span>🍷 vinho</span></div>
         <div className="lista-tile"><strong>{totals.soda}</strong><span>🥤 refri</span></div>
+        <div className="lista-tile"><strong>{totals.juice}</strong><span>🧃 suco</span></div>
         <div className="lista-tile"><strong>{totals.glutenFree}</strong><span>🌾 sem glúten</span></div>
+        <div className="lista-tile"><strong>{totals.vegetarian}</strong><span>🥗 vegetariano</span></div>
         <div className="lista-tile"><strong>{notGoing.length}</strong><span>não vão</span></div>
       </div>
 
@@ -80,10 +82,10 @@ export default async function ListaPage() {
         <section className="lista-section">
           <h2>🌾 restrições ({restrictions.length})</h2>
           <table className="lista-table">
-            <thead><tr><th>nome</th><th>sem glúten</th><th>observação</th></tr></thead>
+            <thead><tr><th>nome</th><th>sem glúten</th><th>vegetariano</th><th>observação</th></tr></thead>
             <tbody>
               {restrictions.map((p) => (
-                <tr key={p.id}><td>{p.full_name}</td><td>{p.gluten_free ? "sim" : ""}</td><td>{p.diet_note}</td></tr>
+                <tr key={p.id}><td>{p.full_name}</td><td>{p.gluten_free ? "sim" : ""}</td><td>{p.vegetarian ? "sim" : ""}</td><td>{p.diet_note}</td></tr>
               ))}
             </tbody>
           </table>
@@ -108,6 +110,7 @@ export default async function ListaPage() {
                     {p.full_name}
                     {p.is_child && <span className="lista-tag">criança{p.child_age !== null ? `, ${p.child_age}` : ""}</span>}
                     {p.gluten_free && <span className="lista-tag lista-tag--gf">sem glúten</span>}
+                    {p.vegetarian && <span className="lista-tag lista-tag--veg">vegetariano</span>}
                     <small> · {drinks(p)}{p.diet_note ? ` · ${p.diet_note}` : ""}{p.kid_food ? ` · come: ${p.kid_food}` : ""}</small>
                   </li>
                 ))}
