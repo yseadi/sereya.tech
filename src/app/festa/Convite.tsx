@@ -577,6 +577,16 @@ function Thanks({ saved, onEdit }: { saved: { id: string; answer: FestaAnswer };
       <p>
         Te espero {FESTA.dateLabel}, {FESTA.timeLabel}.
       </p>
+      {FESTA.address && (
+        <a className="festa-address festa-address--thanks" href={FESTA.mapsUrl} target="_blank" rel="noreferrer">
+          <span aria-hidden>📍</span>
+          <span>
+            <strong>{FESTA.place}</strong>
+            {FESTA.address}
+            <em>abrir no mapa →</em>
+          </span>
+        </a>
+      )}
       <ul className="festa-thanks-list">
         {a.people.map((p, i) => (
           <li key={i}>
@@ -821,7 +831,7 @@ function Gifts() {
             <button
               key={i}
               type="button"
-              className={`festa-gift festa-gift--${i % 5}${on ? " is-open" : ""}`}
+              className={`festa-gift festa-gift--${i % 6}${on ? " is-open" : ""}`}
               aria-pressed={on}
               onClick={() =>
                 setOpen((s) => {

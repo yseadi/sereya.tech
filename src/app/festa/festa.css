@@ -688,3 +688,7 @@
 .festa-pill--juice.is-on { background: #fdf3df; border-color: #f0c870; }
 .festa-pill--veg.is-on { background: #e8f5f1; border-color: #8ccbb4; }
 .lista-tag--veg { background: #e8f5f1; }
+.festa-address--thanks { margin-top: 14px; background: #f5f3fa; box-shadow: none; }
+.festa-gift { height: 260px; }
+.festa-gift--0 .festa-gift-back { font-size: 14px; line-height: 1.35; }
+.festa-gift--5 .festa-gift-face { background: #fbedef; }
