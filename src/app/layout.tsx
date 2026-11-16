@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import { Footer } from "@/components/Footer";
 import { Glow } from "@/components/Glow";
 import { Menu } from "@/components/Menu";
@@ -28,6 +29,23 @@ export const metadata: Metadata = {
 export const viewport = { themeColor: "#f1ecfb" };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  // The birthday invite (festa.sereya.tech) is its own little page: no Sereya menu or footer.
+  if ((await headers()).get("x-festa") === "1") {
+    return (
+      <html lang="pt-BR">
+        <head>
+          <link rel="preconnect" href="https://fonts.googleapis.com" />
+          <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+          {/* eslint-disable-next-line @next/next/no-page-custom-font */}
+          <link
+            href="https://fonts.googleapis.com/css2?family=Rethink+Sans:wght@400;500;600;700&family=Caveat:wght@500;700&family=Noto+Naskh+Arabic:wght@500&display=swap"
+            rel="stylesheet"
+          />
+        </head>
+        <body className="festa-body">{children}</body>
+      </html>
+    );
+  }
   const { user, profile } = await getViewer();
   const name = user ? firstName(profile) || "You" : null;
   return (
