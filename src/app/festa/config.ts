@@ -15,18 +15,24 @@ export const FESTA = {
   mapsUrl:
     "https://www.google.com/maps/search/?api=1&query=" +
     encodeURIComponent("Condomínio Vilas do Mar, Rod. Pref. João Luiz da Silva, 1181, Passo de Torres, SC"),
+  dj: "DJ Gustavo",
+  gifts: [
+    { emoji: "🇱🇧", front: "um pedacinho do Líbano", back: "qualquer coisa que conecte com minhas raízes: um curso, uma camiseta, um vinil da Fairuz…" },
+    { emoji: "✍️", front: "o que você aprendeu comigo", back: "uma cartinha escrita à mão contando a última coisa que você aprendeu comigo" },
+    { emoji: "💌", front: "algo pra me ensinar", back: "uma cartinha escrita à mão com algo que você queira me ensinar" },
+    { emoji: "🎶", front: "uma playlist", back: "com as músicas que fazem você lembrar de mim" },
+    { emoji: "📌", front: "um moodboard", back: "no Pinterest, com imagens que você acha que têm a minha vibe" },
+  ],
   /**
    * Photos for the draggable polaroids: put the files in public/festa/fotos/.
-   * While this list is empty the polaroids show little drawings instead.
    */
-  heroPhoto: { src: "/festa/fotos/marseille.jpg", caption: "marseille 🫧", position: "30% 40%" },
+  heroPhoto: { src: "/festa/fotos/marseille.jpg", caption: "marseille 🫧", position: "22% 40%" },
   photos: [
     { src: "/festa/fotos/paris-mesquita.jpg", caption: "raízes árabes 🌙", position: "50% 62%" },
     { src: "/festa/fotos/mini-yas-oculos.jpg", caption: "mini yas 🕶️", position: "50% 45%" },
     { src: "/festa/fotos/milano.jpg", caption: "milano ☕", position: "50% 32%" },
     { src: "/festa/fotos/mar.jpg", caption: "mediterrâneo 🌊", position: "50% 62%" },
     { src: "/festa/fotos/brasil.jpg", caption: "Brasil 💚💛", position: "50% 42%" },
-    { src: "/festa/fotos/parque-cachorro.jpg", caption: "amiguinho 🐶", position: "45% 58%" },
     { src: "/festa/fotos/raizes.jpg", caption: "حبيبي ☀️", position: "50% 32%" },
     { src: "/festa/fotos/batom.jpg", caption: "retoque 💄", position: "72% 40%" },
     { src: "/festa/fotos/mini-yas-berco.jpg", caption: "mini yas 👶", position: "38% 40%" },

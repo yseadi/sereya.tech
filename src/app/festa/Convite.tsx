@@ -54,9 +54,7 @@ export function Convite() {
 
       <header className="festa-hero">
         <Stickers />
-        <p className="festa-hi">
-          oie! <span lang="ar">أهلاً</span>
-        </p>
+        <p className="festa-hi">oie!</p>
         <h1>
           você tá convidado pro meu <span className="festa-shine">aniversário</span>
         </h1>
@@ -86,18 +84,7 @@ export function Convite() {
             </span>
           </a>
         )}
-        {FESTA.heroPhoto && (
-          <figure className="festa-hero-photo">
-            <div className="festa-arch">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={FESTA.heroPhoto.src} alt={`${FESTA.host} em ${FESTA.heroPhoto.caption}`} style={{ objectPosition: FESTA.heroPhoto.position }} />
-            </div>
-            <figcaption>{FESTA.heroPhoto.caption}</figcaption>
-          </figure>
-        )}
       </header>
-
-      <Polaroids />
 
       <section className="festa-notes">
         <div className="festa-note festa-note--lilac">
@@ -132,8 +119,14 @@ export function Convite() {
         )}
       </section>
 
+      <Dj />
+
+      <Gifts />
+
+      <Gallery />
+
       <footer className="festa-foot">
-        feito com 💜 pela {FESTA.host} <span lang="ar">ياسمين</span> · <a href="https://sereya.tech">sereya.tech</a>
+        feito com 💜 pela {FESTA.host} · <a href="https://sereya.tech">sereya.tech</a>
       </footer>
     </div>
   );
@@ -157,7 +150,6 @@ function RsvpForm({
     initial?.answer.people.length ? initial.answer.people : [blankPerson()],
   );
   const [contact, setContact] = useState(initial?.answer.contact_name || "");
-  const [phone, setPhone] = useState(initial?.answer.phone || "");
   const [message, setMessage] = useState(initial?.answer.message || "");
   const [error, setError] = useState("");
   const [pending, start] = useTransition();
@@ -188,7 +180,7 @@ function RsvpForm({
     const answer: FestaAnswer = {
       going,
       contact_name: going ? people[0]?.full_name.trim() || "" : contact.trim(),
-      phone: phone.trim(),
+      phone: "",
       message: message.trim(),
       people: going ? people : [],
       replaces: initial?.id,
@@ -288,25 +280,19 @@ function RsvpForm({
         <>
           <label className="festa-field">
             <span>
-              seu WhatsApp <em>(opcional, caso eu precise falar com você)</em>
-            </span>
-            <input
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              inputMode="tel"
-              autoComplete="tel"
-              placeholder="(11) 9 0000-0000"
-            />
-          </label>
-          <label className="festa-field">
-            <span>
-              recadinho pra {FESTA.host} <em>(opcional)</em>
+              {going ? (
+                <>
+                  recadinho pra {FESTA.host} <em>(opcional)</em>
+                </>
+              ) : (
+                <>escreva uma justificativa plausível pra não vir me ver 😡</>
+              )}
             </span>
             <textarea
               rows={3}
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              placeholder={going ? "mal posso esperar!" : "vou sentir falta…"}
+              placeholder={going ? "mal posso esperar!" : "e é bom que seja convincente…"}
             />
           </label>
 
@@ -573,148 +559,95 @@ function Thanks({ saved, onEdit }: { saved: { id: string; answer: FestaAnswer };
 }
 
 /* ------------------------------------------------------------------ */
-/* Draggable polaroids                                                 */
+/* Photos: Marseille big, the rest in a grid; tap to see full size     */
 /* ------------------------------------------------------------------ */
 
-const DOODLES = [
-  { emoji: "🎂", caption: "tem bolo!", bg: "linear-gradient(140deg,#fbedef,#e2daf2)" },
-  { emoji: "🥂", caption: "e brinde", bg: "linear-gradient(140deg,#fbf3e6,#fbedef)" },
-  { emoji: "🫧", caption: "28/11", bg: "linear-gradient(140deg,#eaf2fc,#e8f5f1)" },
-  { emoji: "💜", caption: "vem!", bg: "linear-gradient(140deg,#e2daf2,#eaf2fc)" },
-  { emoji: "🎈", caption: "sábado, 14h", bg: "linear-gradient(140deg,#e8f5f1,#fbf3e6)" },
-];
+function Gallery() {
+  const all = [FESTA.heroPhoto, ...FESTA.photos];
+  const [open, setOpen] = useState<number | null>(null);
+  const grid = useRef<HTMLDivElement>(null);
+  const touch = useRef<number | null>(null);
 
-type Card = { x: number; y: number; r: number; z: number };
-
-function Polaroids() {
-  const box = useRef<HTMLDivElement>(null);
-  const items = FESTA.photos.length ? FESTA.photos.map((p) => ({ ...p, emoji: "", bg: "" })) : DOODLES.map((d) => ({ ...d, src: "", position: undefined as string | undefined }));
-  const [cards, setCards] = useState<Card[]>(() =>
-    items.map((_, i) => ({ x: 0, y: 0, r: [-8, 6, -3, 9, -6, 4, -10, 7][i % 8], z: i + 1 })),
-  );
-  const [ready, setReady] = useState(false);
-  const [held, setHeld] = useState<number | null>(null);
-  const [nudged, setNudged] = useState(false);
-  const drag = useRef<{ i: number; dx: number; dy: number; vx: number; vy: number; t: number; lx: number; ly: number } | null>(null);
-  const zTop = useRef(items.length + 1);
-
-  // Fan the cards out once we know the box size.
   useEffect(() => {
-    const b = box.current;
-    if (!b) return;
-    const w = b.clientWidth;
-    const h = b.clientHeight;
-    const cw = 150;
-    const ch = 180;
-    setCards((cs) =>
-      cs.map((c, i) => {
-        const n = cs.length;
-        const t = n === 1 ? 0.5 : i / (n - 1);
-        return { ...c, x: 8 + t * (w - cw - 16), y: (h - ch) / 2 + Math.sin(t * Math.PI * 3) * 70 };
-      }),
+    const els = grid.current?.querySelectorAll(".festa-shot");
+    if (!els || !("IntersectionObserver" in window)) return;
+    const io = new IntersectionObserver(
+      (entries) =>
+        entries.forEach((en) => {
+          if (en.isIntersecting) {
+            en.target.classList.add("is-in");
+            io.unobserve(en.target);
+          }
+        }),
+      { threshold: 0.15 },
     );
-    setReady(true);
+    els.forEach((el) => io.observe(el));
+    return () => io.disconnect();
   }, []);
 
-  const bounds = () => {
-    const b = box.current;
-    return { w: (b?.clientWidth || 320) - 150, h: (b?.clientHeight || 320) - 180 };
-  };
-
-  const fling = (i: number, vx: number, vy: number) => {
-    let last = performance.now();
-    const step = (t: number) => {
-      const dt = Math.min(32, t - last) / 16;
-      last = t;
-      vx *= Math.pow(0.9, dt);
-      vy *= Math.pow(0.9, dt);
-      const { w, h } = bounds();
-      let stop = Math.abs(vx) < 0.3 && Math.abs(vy) < 0.3;
-      setCards((cs) =>
-        cs.map((c, j) => {
-          if (j !== i) return c;
-          let x = c.x + vx * dt;
-          let y = c.y + vy * dt;
-          if (x < -30 || x > w + 30) {
-            vx = -vx * 0.6;
-            x = Math.max(-30, Math.min(w + 30, x));
-          }
-          if (y < -30 || y > h + 30) {
-            vy = -vy * 0.6;
-            y = Math.max(-30, Math.min(h + 30, y));
-          }
-          return { ...c, x, y, r: c.r + vx * 0.15 * dt };
-        }),
-      );
-      if (drag.current?.i === i) stop = true;
-      if (!stop) requestAnimationFrame(step);
+  useEffect(() => {
+    if (open === null) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(null);
+      if (e.key === "ArrowRight") setOpen((i) => (i === null ? i : (i + 1) % all.length));
+      if (e.key === "ArrowLeft") setOpen((i) => (i === null ? i : (i - 1 + all.length) % all.length));
     };
-    requestAnimationFrame(step);
-  };
+    window.addEventListener("keydown", onKey);
+    document.body.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = "";
+    };
+  }, [open, all.length]);
 
   return (
-    <section className="festa-play" aria-label="Fotos">
-      <div ref={box} className={`festa-polaroids${ready ? " is-ready" : ""}`}>
-        {items.map((it, i) => {
-          const c = cards[i];
-          return (
-            <div
-              key={i}
-              className={`festa-polaroid${held === i ? " is-held" : ""}`}
-              style={{
-                transform: `translate(${c.x}px, ${c.y}px) rotate(${c.r}deg) scale(${held === i ? 1.08 : 1})`,
-                zIndex: c.z,
-                animationDelay: `${i * 0.12}s`,
-              }}
-              onPointerDown={(e) => {
-                e.currentTarget.setPointerCapture(e.pointerId);
-                const z = ++zTop.current;
-                setCards((cs) => cs.map((cc, j) => (j === i ? { ...cc, z } : cc)));
-                drag.current = { i, dx: e.clientX - c.x, dy: e.clientY - c.y, vx: 0, vy: 0, t: performance.now(), lx: e.clientX, ly: e.clientY };
-                setHeld(i);
-                setNudged(true);
-              }}
-              onPointerMove={(e) => {
-                const d = drag.current;
-                if (!d || d.i !== i) return;
-                const now = performance.now();
-                const dt = Math.max(1, now - d.t) / 16;
-                d.vx = (e.clientX - d.lx) / dt;
-                d.vy = (e.clientY - d.ly) / dt;
-                d.lx = e.clientX;
-                d.ly = e.clientY;
-                d.t = now;
-                setCards((cs) =>
-                  cs.map((cc, j) => (j === i ? { ...cc, x: e.clientX - d.dx, y: e.clientY - d.dy, r: cc.r * 0.9 + d.vx * 0.4 } : cc)),
-                );
-              }}
-              onPointerUp={() => {
-                const d = drag.current;
-                drag.current = null;
-                setHeld(null);
-                if (d && d.i === i) fling(i, d.vx, d.vy);
-              }}
-              onPointerCancel={() => {
-                drag.current = null;
-                setHeld(null);
-              }}
-            >
-              <div className="festa-polaroid-img" style={it.bg ? { background: it.bg } : undefined}>
-                {it.src ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={it.src} alt="" draggable={false} loading="lazy" style={{ objectPosition: it.position }} />
-                ) : (
-                  <span aria-hidden>{it.emoji}</span>
-                )}
-              </div>
-              <p>{it.caption}</p>
-            </div>
-          );
-        })}
+    <section className="festa-gallery" aria-label="Fotos">
+      <h2>um pouquinho do meu ano</h2>
+      <div ref={grid} className="festa-shots">
+        {all.map((ph, i) => (
+          <button
+            key={ph.src}
+            type="button"
+            className={`festa-shot${i === 0 ? " is-big" : ""}`}
+            style={{ transitionDelay: `${(i % 2) * 0.08}s` }}
+            onClick={() => setOpen(i)}
+            aria-label={`Ver foto: ${ph.caption}`}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={ph.src} alt="" loading="lazy" style={{ objectPosition: ph.position }} />
+            <span className="festa-shot-cap">{ph.caption}</span>
+          </button>
+        ))}
       </div>
-      <p className={`festa-hint${nudged ? " is-gone" : ""}`}>
-        <span aria-hidden>👆</span> arrasta e joga as fotos
-      </p>
+      {open !== null && (
+        <div
+          className="festa-lightbox"
+          role="dialog"
+          aria-modal="true"
+          aria-label={all[open].caption}
+          onClick={() => setOpen(null)}
+          onTouchStart={(e) => (touch.current = e.touches[0].clientX)}
+          onTouchEnd={(e) => {
+            const start = touch.current;
+            touch.current = null;
+            if (start === null) return;
+            const dx = e.changedTouches[0].clientX - start;
+            if (Math.abs(dx) > 50) {
+              e.preventDefault();
+              setOpen((i) => (i === null ? i : (i + (dx < 0 ? 1 : -1) + all.length) % all.length));
+            }
+          }}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img key={open} src={all[open].src} alt={all[open].caption} onClick={(e) => e.stopPropagation()} />
+          <p>
+            {all[open].caption} <span>{open + 1}/{all.length}</span>
+          </p>
+          <button type="button" className="festa-lightbox-x" aria-label="Fechar">
+            ×
+          </button>
+        </div>
+      )}
     </section>
   );
 }
@@ -763,6 +696,103 @@ function Stickers() {
         </span>
       ))}
     </>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* DJ: a vinyl you can scratch                                         */
+/* ------------------------------------------------------------------ */
+
+function Dj() {
+  const disc = useRef<HTMLDivElement>(null);
+  const [angle, setAngle] = useState<number | null>(null);
+  const grab = useRef<{ a0: number; start: number } | null>(null);
+  const pointerAngle = (e: React.PointerEvent) => {
+    const r = disc.current!.getBoundingClientRect();
+    return (Math.atan2(e.clientY - (r.top + r.height / 2), e.clientX - (r.left + r.width / 2)) * 180) / Math.PI;
+  };
+  return (
+    <section className="festa-dj">
+      <div
+        ref={disc}
+        className={`festa-vinyl${angle !== null ? " is-scratching" : ""}`}
+        style={angle !== null ? { rotate: `${angle}deg` } : undefined}
+        aria-hidden
+        onPointerDown={(e) => {
+          e.currentTarget.setPointerCapture(e.pointerId);
+          const start = parseFloat(getComputedStyle(e.currentTarget).rotate) || 0;
+          grab.current = { a0: pointerAngle(e), start };
+          setAngle(start);
+        }}
+        onPointerMove={(e) => {
+          const g = grab.current;
+          if (g) setAngle(g.start + pointerAngle(e) - g.a0);
+        }}
+        onPointerUp={() => {
+          grab.current = null;
+          setAngle(null);
+        }}
+        onPointerCancel={() => {
+          grab.current = null;
+          setAngle(null);
+        }}
+      >
+        <span className="festa-vinyl-label">
+          <Star8 color="#b9a5ee" />
+        </span>
+      </div>
+      <div>
+        <p className="festa-dj-kicker">🎧 vai ter som!</p>
+        <h2>{FESTA.dj} tocando</h2>
+        <p className="festa-dj-sub">prepara a dancinha (e pode arranhar o disco 👆)</p>
+      </div>
+    </section>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Gift ideas: little cards that flip                                  */
+/* ------------------------------------------------------------------ */
+
+function Gifts() {
+  const [open, setOpen] = useState<Set<number>>(new Set());
+  return (
+    <section className="festa-gifts">
+      <h2>ideias de presente</h2>
+      <p className="festa-gifts-sub">se quiser me presentear, essas são coisas que eu ia amar 🫶 toca nas cartinhas</p>
+      <div className="festa-gift-row">
+        {FESTA.gifts.map((g, i) => {
+          const on = open.has(i);
+          return (
+            <button
+              key={i}
+              type="button"
+              className={`festa-gift festa-gift--${i % 5}${on ? " is-open" : ""}`}
+              aria-pressed={on}
+              onClick={() =>
+                setOpen((s) => {
+                  const n = new Set(s);
+                  if (n.has(i)) n.delete(i);
+                  else n.add(i);
+                  return n;
+                })
+              }
+            >
+              <span className="festa-gift-inner">
+                <span className="festa-gift-face">
+                  <span className="festa-gift-emoji" aria-hidden>
+                    {g.emoji}
+                  </span>
+                  <strong>{g.front}</strong>
+                  <small>toca pra abrir</small>
+                </span>
+                <span className="festa-gift-face festa-gift-back">{g.back}</span>
+              </span>
+            </button>
+          );
+        })}
+      </div>
+    </section>
   );
 }
 
