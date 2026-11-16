@@ -50,7 +50,6 @@ export function Convite() {
   };
 
   const partyDays = now === null ? null : daysUntil(FESTA.startsAt);
-  const deadlineDays = now === null ? null : daysUntil(FESTA.deadline);
 
   return (
     <div className="festa">
@@ -90,31 +89,6 @@ export function Convite() {
           </a>
         )}
       </header>
-
-      <section className="festa-notes">
-        <div className="festa-note festa-note--lilac">
-          <span aria-hidden>💌</span>
-          <p>
-            preciso que você confirme até <strong>{FESTA.deadlineLabel}</strong> pra eu organizar os comes e bebes
-            {deadlineDays !== null && deadlineDays >= 0 && (
-              <em> ({deadlineDays === 0 ? "é hoje!" : deadlineDays === 1 ? "falta 1 dia" : `faltam ${deadlineDays} dias`})</em>
-            )}
-          </p>
-        </div>
-        <div className="festa-note festa-note--champagne">
-          <span aria-hidden>🌾</span>
-          <p>
-            se você for <strong>celíaco</strong> ou não puder comer <strong>glúten</strong> (ou tiver outra restrição), me
-            avisa aqui embaixo
-          </p>
-        </div>
-        <div className="festa-note festa-note--mint">
-          <span aria-hidden>🪪</span>
-          <p>
-            preciso do <strong>nome completo</strong> de cada pessoa pra passar pra portaria, criança também
-          </p>
-        </div>
-      </section>
 
       <section id="resposta" className="festa-card">
         {saved && !editing ? (
@@ -157,6 +131,10 @@ function RsvpForm({
   const [contact, setContact] = useState(initial?.answer.contact_name || "");
   const [message, setMessage] = useState(initial?.answer.message || "");
   const [error, setError] = useState("");
+  const [acks, setAcks] = useState<[boolean, boolean]>(initial ? [true, true] : [false, false]);
+  const [deadlineDays, setDeadlineDays] = useState<number | null>(null);
+  useEffect(() => setDeadlineDays(daysUntil(FESTA.deadline)), []);
+  const acked = going !== true || (acks[0] && acks[1]);
   const [pending, start] = useTransition();
   const lastAdded = useRef<number | null>(null);
 
@@ -182,6 +160,10 @@ function RsvpForm({
   const submit = () => {
     setError("");
     if (going === null) return setError("Me conta: você vai?");
+    if (!acked) {
+      document.querySelector(".festa-acks")?.scrollIntoView({ behavior: "smooth", block: "center" });
+      return setError("Toca nos dois combinadinhos aí em cima 💜");
+    }
     const answer: FestaAnswer = {
       going,
       contact_name: going ? people[0]?.full_name.trim() || "" : contact.trim(),
@@ -224,6 +206,12 @@ function RsvpForm({
       }}
     >
       <h2>{initial ? "mudar minha resposta" : "e aí, vem?"}</h2>
+      <p className="festa-deadline">
+        responde até <strong>{FESTA.deadlineLabel}</strong>
+        {deadlineDays !== null && deadlineDays >= 0 && (
+          <> · {deadlineDays === 0 ? "é hoje!" : deadlineDays === 1 ? "falta 1 dia" : `faltam ${deadlineDays} dias`}</>
+        )}
+      </p>
 
       <div className="festa-choice" role="radiogroup" aria-label="Você vai?">
         <button
@@ -307,13 +295,51 @@ function RsvpForm({
             />
           </label>
 
+          {going && (
+            <div className="festa-acks" role="group" aria-label="Combinados">
+              <p className="festa-mini">antes de confirmar, toca pra combinar:</p>
+              {[
+                { emoji: "🪪", text: <>Coloquei o <strong>nome completo</strong> de todo mundo, criança também. É pra portaria!</> },
+                {
+                  emoji: "🍽️",
+                  text: <>Se alguém precisa de <strong>comida especial</strong> (sem glúten, vegetariano, alergia…), já marquei aqui em cima.</>,
+                },
+              ].map((a, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  role="checkbox"
+                  aria-checked={acks[i]}
+                  className={`festa-ack${acks[i] ? " is-on" : ""}`}
+                  onClick={() => {
+                    setAcks((v) => (i === 0 ? [!v[0], v[1]] : [v[0], !v[1]]));
+                    setError("");
+                  }}
+                >
+                  <span className="festa-ack-emoji" aria-hidden>
+                    {a.emoji}
+                  </span>
+                  <span className="festa-ack-text">{a.text}</span>
+                  <span className="festa-ack-tick" aria-hidden>
+                    {acks[i] ? "✓" : ""}
+                  </span>
+                </button>
+              ))}
+            </div>
+          )}
+
           {error && (
             <p className="festa-error" role="alert">
               {error}
             </p>
           )}
 
-          <SlideToSend label={going ? "arrasta o bolo pra confirmar" : "arrasta pra enviar"} pending={pending} onSend={submit} />
+          <SlideToSend
+            label={!acked ? "toca nos combinados ☝️" : going ? "arrasta o bolo pra confirmar" : "arrasta pra enviar"}
+            pending={pending}
+            locked={!acked}
+            onSend={submit}
+          />
           {onCancel && (
             <button type="button" className="festa-link" onClick={onCancel}>
               deixa como estava
@@ -349,8 +375,10 @@ function PersonCard({
           </button>
         )}
       </div>
-      <label className="festa-field">
-        <span className="sr-only">Nome completo</span>
+      <label className="festa-field festa-field--name">
+        <span>
+          🪪 nome e sobrenome, vai pra portaria
+        </span>
         <input
           value={person.full_name}
           onChange={(e) => onChange({ full_name: e.target.value })}
@@ -416,7 +444,7 @@ function PersonCard({
           </button>
         )}
       </div>
-      <p className="festa-mini">comida:</p>
+      <p className="festa-mini">comida especial:</p>
       <div className="festa-row">
         <button
           type="button"
@@ -461,12 +489,14 @@ function PersonCard({
 /* Slide to send: drag the cake to the end (or just tap it)            */
 /* ------------------------------------------------------------------ */
 
-function SlideToSend({ label, pending, onSend }: { label: string; pending: boolean; onSend: () => void }) {
+function SlideToSend({ label, pending, locked, onSend }: { label: string; pending: boolean; locked?: boolean; onSend: () => void }) {
   const track = useRef<HTMLDivElement>(null);
   const [x, setX] = useState(0);
   const [dragging, setDragging] = useState(false);
   const start = useRef<{ px: number; moved: boolean } | null>(null);
 
+  const pendingRef = useRef(pending);
+  pendingRef.current = pending;
   useEffect(() => {
     if (!pending) setX(0);
   }, [pending]);
@@ -477,7 +507,7 @@ function SlideToSend({ label, pending, onSend }: { label: string; pending: boole
   };
 
   return (
-    <div ref={track} className={`festa-slide${pending ? " is-pending" : ""}`}>
+    <div ref={track} className={`festa-slide${pending ? " is-pending" : ""}${locked ? " is-locked" : ""}`}>
       <span className="festa-slide-fill" style={{ width: x + 60 }} />
       <span className="festa-slide-label">{pending ? "enviando…" : label}</span>
       <button
@@ -503,8 +533,12 @@ function SlideToSend({ label, pending, onSend }: { label: string; pending: boole
           setDragging(false);
           if (!s) return;
           if (!s.moved || x > max() * 0.8) {
-            setX(max());
+            if (!locked) setX(max());
             onSend();
+            // If the form had something missing, slide the cake back.
+            setTimeout(() => {
+              if (!pendingRef.current) setX(0);
+            }, 350);
           } else setX(0);
         }}
         onPointerCancel={() => {
@@ -655,6 +689,11 @@ function Gallery() {
   return (
     <section className="festa-gallery" aria-label="Fotos">
       <h2>um pouquinho do meu ano</h2>
+      <button type="button" className="festa-wide" onClick={() => setOpen(0)} aria-label={`Ver foto: ${all[0].caption}`}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={all[0].src} alt="" loading="lazy" />
+        <span className="festa-shot-cap">{all[0].caption}</span>
+      </button>
       <div
         ref={grid}
         className="festa-shots"
@@ -664,7 +703,7 @@ function Gallery() {
           if (first) setAt(Math.round(el.scrollLeft / (first.offsetWidth + 12)));
         }}
       >
-        {all.map((ph, i) => (
+        {all.map((ph, i) => i === 0 ? null : (
           <button
             key={ph.src}
             type="button"
@@ -679,7 +718,7 @@ function Gallery() {
         ))}
       </div>
       <div className="festa-dots" aria-hidden>
-        {all.map((_, i) => (
+        {all.slice(1).map((_, i) => (
           <span key={i} className={i === at ? "is-on" : ""} />
         ))}
       </div>
