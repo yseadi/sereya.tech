@@ -655,6 +655,11 @@ function Gallery() {
   return (
     <section className="festa-gallery" aria-label="Fotos">
       <h2>um pouquinho do meu ano</h2>
+      <button type="button" className="festa-wide" onClick={() => setOpen(0)} aria-label={`Ver foto: ${all[0].caption}`}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={all[0].src} alt="" loading="lazy" />
+        <span className="festa-shot-cap">{all[0].caption}</span>
+      </button>
       <div
         ref={grid}
         className="festa-shots"
@@ -664,7 +669,7 @@ function Gallery() {
           if (first) setAt(Math.round(el.scrollLeft / (first.offsetWidth + 12)));
         }}
       >
-        {all.map((ph, i) => (
+        {all.map((ph, i) => i === 0 ? null : (
           <button
             key={ph.src}
             type="button"
@@ -679,7 +684,7 @@ function Gallery() {
         ))}
       </div>
       <div className="festa-dots" aria-hidden>
-        {all.map((_, i) => (
+        {all.slice(1).map((_, i) => (
           <span key={i} className={i === at ? "is-on" : ""} />
         ))}
       </div>

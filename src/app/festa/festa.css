@@ -692,3 +692,17 @@
 .festa-gift { height: 260px; }
 .festa-gift--0 .festa-gift-back { font-size: 14px; line-height: 1.35; }
 .festa-gift--5 .festa-gift-face { background: #fbedef; }
+/* Marseille is shown whole, at its own shape (no crop), above the carousel. */
+.festa-wide {
+  display: block;
+  position: relative;
+  width: 100%;
+  margin-top: 16px;
+  border: 0;
+  padding: 0;
+  border-radius: 20px;
+  overflow: hidden;
+  cursor: zoom-in;
+  box-shadow: 0 10px 26px rgba(91, 74, 158, 0.12);
+}
+.festa-wide img { width: 100%; height: auto; display: block; }
