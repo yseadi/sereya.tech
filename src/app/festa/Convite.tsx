@@ -558,10 +558,10 @@ function Thanks({ saved, onEdit }: { saved: { id: string; answer: FestaAnswer };
     return (
       <div className="festa-thanks">
         <p className="festa-thanks-emoji" aria-hidden>
-          🫶
+          🥲
         </p>
         <h2>que pena! obrigada por avisar</h2>
-        <p>Vou sentir sua falta. Se mudar de ideia, é só mudar a resposta aqui.</p>
+        <p>Você vai fazer falta. Se mudar de ideia, pode mudar a resposta aqui!</p>
         <button type="button" className="festa-btn" onClick={onEdit}>
           mudei de ideia
         </button>
