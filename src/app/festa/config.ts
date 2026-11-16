@@ -29,13 +29,10 @@ export const FESTA = {
    */
   heroPhoto: { src: "/festa/fotos/marseille.jpg", caption: "marseille 🫧", position: "22% 40%" },
   photos: [
-    { src: "/festa/fotos/paris-mesquita.jpg", caption: "raízes árabes 🌙", position: "50% 62%" },
     { src: "/festa/fotos/mini-yas-oculos.jpg", caption: "mini yas 🕶️", position: "50% 45%" },
-    { src: "/festa/fotos/milano.jpg", caption: "milano ☕", position: "50% 32%" },
     { src: "/festa/fotos/mar.jpg", caption: "mediterrâneo 🌊", position: "50% 62%" },
     { src: "/festa/fotos/brasil.jpg", caption: "Brasil 💚💛", position: "50% 42%" },
     { src: "/festa/fotos/raizes.jpg", caption: "حبيبي ☀️", position: "50% 32%" },
-    { src: "/festa/fotos/batom.jpg", caption: "retoque 💄", position: "72% 40%" },
     { src: "/festa/fotos/mini-yas-berco.jpg", caption: "mini yas 👶", position: "38% 40%" },
   ] as { src: string; caption: string; position?: string }[],
 };
