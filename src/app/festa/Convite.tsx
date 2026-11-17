@@ -58,11 +58,10 @@ export function Convite() {
 
       <header className="festa-hero">
         <Stickers />
-        <p className="festa-hi">oie!</p>
+        <p className="festa-hi">oieee!</p>
         <h1>
-          você tá convidado pro meu <span className="festa-shine">aniversário</span>
+          esse é um convite para o meu <span className="festa-shine">aniversário</span> ✨
         </h1>
-        <p className="festa-sign">com amor, {FESTA.host} 💜</p>
         <div className="festa-when">
           <div>
             <span className="festa-when-emoji" aria-hidden>
@@ -299,10 +298,10 @@ function RsvpForm({
             <div className="festa-acks" role="group" aria-label="Combinados">
               <p className="festa-mini">antes de confirmar, toca pra combinar:</p>
               {[
-                { emoji: "🪪", text: <>Coloquei o <strong>nome completo</strong> de todo mundo, criança também. É pra portaria!</> },
+                { emoji: "🪪", text: <>confirmo que coloquei o <strong>nome completo</strong> de todo mundo pra yas só repassar para a portaria!</> },
                 {
                   emoji: "🍽️",
-                  text: <>Se alguém precisa de <strong>comida especial</strong> (sem glúten, vegetariano, alergia…), já marquei aqui em cima.</>,
+                  text: <>confirmo que já indiquei se preciso de <strong>comida especial</strong> (sem glúten, vegetariano, alergia…).</>,
                 },
               ].map((a, i) => (
                 <button
@@ -700,14 +699,12 @@ function Postcard() {
                 <small>28·11</small>
               </span>
             </span>
-            <span className="festa-postcard-note">
-              essa foi minha foto favorita de 2026, porque foi a primeira vez que visitei Marseille, a cidade que virou
-              meu lugar preferido no mundo&nbsp;♡
-              <br />
-              a próxima vai ser a que vamos tirar dia&nbsp;28&nbsp;♡
-              <br />
-              <strong>até lá, Yas</strong>
-            </span>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              className="festa-postcard-hand"
+              src="/festa/fotos/bilhete.png"
+              alt="essa foi minha foto favorita de 2026, porque foi a primeira vez que visitei Marseille, a cidade que virou meu lugar preferido no mundo ♡ a próxima vai ser a que vamos tirar dia 28 ♡ até lá, Yas"
+            />
           </span>
         </span>
       </button>
@@ -822,7 +819,7 @@ function Gifts() {
   return (
     <section className="festa-gifts">
       <h2>ideias de presente</h2>
-      <p className="festa-gifts-sub">se quiser me presentear, essas são coisas que eu ia amar 🫶 toca nas cartinhas</p>
+      <p className="festa-gifts-sub">se quiser me presentear, essas são coisas que eu ia amar 🫶</p>
       <div className="festa-gift-row">
         {FESTA.gifts.map((g, i) => {
           const on = open.has(i);

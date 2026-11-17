@@ -58,7 +58,7 @@ export default async function Image() {
           <img src={src} alt="" width={1000} height={562} style={{ height: 520, width: 924, objectFit: "cover", marginLeft: -170 }} />
         </div>
         <div style={{ display: "flex", flexDirection: "column", marginLeft: 56, flex: 1 }}>
-          <div style={{ fontSize: 40, color: "#5b4a9e", display: "flex" }}>oie! você tá convidado pro</div>
+          <div style={{ fontSize: 40, color: "#5b4a9e", display: "flex" }}>oieee! esse é um convite pro</div>
           <div style={{ fontSize: 84, fontWeight: 700, letterSpacing: -2, lineHeight: 1.05, display: "flex", marginTop: 8 }}>
             {FESTA.title}
           </div>

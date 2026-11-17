@@ -789,3 +789,11 @@
 @media (prefers-reduced-motion: reduce) { .festa-thanks-photo { animation: none; } .festa-postcard-inner { transition: none; } }
 
 .festa-thanks > .festa-btn { width: 100%; margin-top: 16px; }
+.festa-postcard-hand { display: block; width: 100%; height: auto; margin-top: -8px; }
+/* Back with her handwriting: same size as the photo side, stamp in the empty bottom corner */
+.festa-postcard-back { position: absolute; inset: 0; padding: 14px; display: block; }
+.festa-postcard-face img.festa-postcard-hand { width: calc(100% - 50px); height: 100%; margin: 0; object-fit: contain; object-position: left center; }
+.festa-postcard-top { position: absolute; inset: 14px 10px 14px auto; margin: 0; flex-direction: column; justify-content: space-between; align-items: flex-end; }
+.festa-postcard-top .festa-postcard-stamp { order: -1; scale: 0.72; transform-origin: top right; }
+.festa-postcard-top .festa-postcard-mark { margin: 0; scale: 0.8; transform-origin: bottom right; }
+.festa-postcard-inner { position: relative; }

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Convite } from "./Convite";
 import { FESTA } from "./config";
 
-const description = `Oie! Você tá convidado. ${FESTA.dateLabel[0].toUpperCase()}${FESTA.dateLabel.slice(1)}, ${FESTA.timeLabel}. Confirma até ${FESTA.deadlineLabel} 💜`;
+const description = `Oieee! Esse é um convite pro meu aniversário ✨ ${FESTA.dateLabel[0].toUpperCase()}${FESTA.dateLabel.slice(1)}, ${FESTA.timeLabel}. Confirma até ${FESTA.deadlineLabel} 💜`;
 
 export const metadata: Metadata = {
   title: { absolute: `${FESTA.title} 🎂` },
