@@ -315,10 +315,12 @@ function RsvpForm({
                     setError("");
                   }}
                 >
-                  <span className="festa-ack-emoji" aria-hidden>
-                    {a.emoji}
+                  <span className="festa-ack-body">
+                    <span className="festa-ack-emoji" aria-hidden>
+                      {a.emoji}
+                    </span>
+                    <span className="festa-ack-text">{a.text}</span>
                   </span>
-                  <span className="festa-ack-text">{a.text}</span>
                   <span className="festa-ack-tick" aria-hidden>
                     {acks[i] ? "✓" : ""}
                   </span>
