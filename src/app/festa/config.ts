@@ -19,7 +19,7 @@ export const FESTA = {
   gifts: [
     { emoji: "🇱🇧", front: "um pedacinho do Líbano", back: "qualquer coisa que conecte com minhas raízes: um curso, uma camiseta, um vinil da Fairuz, um chaveiro, um cartão postal, um moodboard, um livro, um artigo que você encontrou…" },
     { emoji: "✍️", front: "o que você aprendeu comigo", back: "uma cartinha escrita à mão contando a última coisa que você aprendeu comigo" },
-    { emoji: "💌", front: "algo pra me ensinar", back: "uma cartinha escrita à mão com algo que você queira me ensinar" },
+    { emoji: "💌", front: "algo pra me ensinar", back: "uma cartinha escrita à mão com algo que você queira me ensinar pq você acha que eu vou gostar muito!" },
     { emoji: "🎶", front: "uma playlist", back: "com as músicas que fazem você lembrar de mim" },
     { emoji: "🗺️", front: "lugares com a minha cara", back: "uma curadoria de lugares que você ache a minha cara, pode ser em qualquer lugar do mundo" },
     { emoji: "📌", front: "um moodboard", back: "no Pinterest, com imagens que você acha que têm a minha vibe" },

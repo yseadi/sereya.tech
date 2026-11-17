@@ -797,3 +797,5 @@
 .festa-postcard-top .festa-postcard-stamp { order: -1; scale: 0.72; transform-origin: top right; }
 .festa-postcard-top .festa-postcard-mark { margin: 0; scale: 0.8; transform-origin: bottom right; }
 .festa-postcard-inner { position: relative; }
+.festa-ack-body { flex: 1; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
+.festa-ack-body .festa-ack-emoji { line-height: 1; }

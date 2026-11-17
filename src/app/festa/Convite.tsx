@@ -298,9 +298,8 @@ function RsvpForm({
             <div className="festa-acks" role="group" aria-label="Combinados">
               <p className="festa-mini">antes de confirmar, toca pra combinar:</p>
               {[
-                { emoji: "🪪", text: <>confirmo que coloquei o <strong>nome completo</strong> de todo mundo pra yas só repassar para a portaria!</> },
+                { text: <>confirmo que coloquei o <strong>nome completo</strong> de todo mundo pra yas só repassar para a portaria!</> },
                 {
-                  emoji: "🍽️",
                   text: <>confirmo que já indiquei se preciso de <strong>comida especial</strong> (sem glúten, vegetariano, alergia…).</>,
                 },
               ].map((a, i) => (
@@ -315,9 +314,6 @@ function RsvpForm({
                     setError("");
                   }}
                 >
-                  <span className="festa-ack-emoji" aria-hidden>
-                    {a.emoji}
-                  </span>
                   <span className="festa-ack-text">{a.text}</span>
                   <span className="festa-ack-tick" aria-hidden>
                     {acks[i] ? "✓" : ""}
