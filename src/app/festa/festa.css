@@ -17,7 +17,6 @@
   --f-sky: #b7d3f4;
   --f-hand: "Rethink Sans", system-ui, sans-serif;
   position: relative;
-  overflow-x: clip;
   width: 100%;
   min-width: 0;
   max-width: 520px;
@@ -239,9 +238,13 @@
   gap: 12px;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
-  padding: 16px 16px 20px;
-  margin: 0 -16px;
+  /* Room inside the scroller so the cards' shadows aren't cut off. */
+  padding: 24px 20px 52px;
+  margin: -8px -16px -32px;
   scrollbar-width: none;
+  /* Soft edges instead of a hard cut where the row scrolls */
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 16px, #000 calc(100% - 16px), transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 16px, #000 calc(100% - 16px), transparent);
 }
 .festa-gift-row::-webkit-scrollbar { display: none; }
 .festa-gift {
@@ -799,3 +802,4 @@
 .festa-postcard-inner { position: relative; }
 .festa-ack-body { flex: 1; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
 .festa-ack-body .festa-ack-emoji { line-height: 1; }
+.festa-official { text-align: center; font-size: 14px; color: var(--f-ink-2); margin: 12px 34px 2px; line-height: 1.4; }
