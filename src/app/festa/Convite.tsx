@@ -77,6 +77,7 @@ export function Convite() {
             </div>
           )}
         </div>
+        <p className="festa-official">meu aniversário oficial é dia 26, mas ia ser impossível fazer uma festa na quinta&nbsp;🙃</p>
         {FESTA.address && (
           <a className="festa-address" href={FESTA.mapsUrl} target="_blank" rel="noreferrer">
             <span aria-hidden>📍</span>
