@@ -563,6 +563,31 @@ function SlideToSend({ label, pending, locked, onSend }: { label: string; pendin
 /* After answering                                                     */
 /* ------------------------------------------------------------------ */
 
+/** First name, lowercase, like the rest of the page ("yasmim"). */
+function firstName(full: string) {
+  return (full.trim().split(/\s+/)[0] || "").toLocaleLowerCase("pt-BR");
+}
+
+/** "a", "a & b", "a, b & c" */
+function joinNames(names: string[]) {
+  if (names.length <= 1) return names[0] ?? "";
+  return `${names.slice(0, -1).join(", ")} & ${names[names.length - 1]}`;
+}
+
+/** Title on the "going" screen: named, and children become "seu tesourinho" / "seus tesouros". */
+function yayTitle(a: FestaAnswer) {
+  const adults = a.people.filter((p) => !p.is_child).map((p) => firstName(p.full_name)).filter(Boolean);
+  const kids = a.people.filter((p) => p.is_child).length;
+  if (adults.length === 0) {
+    const all = a.people.map((p) => firstName(p.full_name)).filter(Boolean);
+    return all.length > 1 ? `eba, ${joinNames(all)}! ✨ vejo vcs dia 28! ♡` : `eba, ${all[0] ?? ""}! ✨ te vejo dia 28! ♡`;
+  }
+  const who = joinNames(adults);
+  if (kids === 1) return `eba, ${who} e seu tesourinho ♡`;
+  if (kids > 1) return `eba, ${who} e seus tesouros ♡`;
+  return adults.length > 1 ? `eba, ${who}! ✨ vejo vcs dia 28! ♡` : `eba, ${who}! ✨ te vejo dia 28! ♡`;
+}
+
 function Thanks({ saved, onEdit }: { saved: { id: string; answer: FestaAnswer }; onEdit: () => void }) {
   const a = saved.answer;
   const ics = useMemo(() => {
@@ -593,7 +618,7 @@ function Thanks({ saved, onEdit }: { saved: { id: string; answer: FestaAnswer };
       <div className="festa-thanks">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img className="festa-thanks-photo festa-thanks-photo--no" src={FESTA.thanksPhoto.notGoing} alt="mini Yas chorando" />
-        <h2>que pena! obrigada por avisar</h2>
+        <h2>que pena, {firstName(a.contact_name)} 🥲 obrigada por avisar</h2>
         <p>Você vai fazer falta. Se mudar de ideia, pode mudar a resposta aqui!</p>
         <button type="button" className="festa-btn" onClick={onEdit}>
           mudei de ideia
@@ -605,7 +630,7 @@ function Thanks({ saved, onEdit }: { saved: { id: string; answer: FestaAnswer };
     <div className="festa-thanks">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img className="festa-thanks-photo" src={FESTA.thanksPhoto.going} alt="mini Yas de óculos escuros" />
-      <h2>eba! tá confirmado</h2>
+      <h2>{yayTitle(a)}</h2>
       <p>
         Te espero {FESTA.dateLabel}, {FESTA.timeLabel}.
       </p>
@@ -676,11 +701,12 @@ function Postcard() {
               </span>
             </span>
             <span className="festa-postcard-note">
-              Essa foi a minha preferida de 2026.
+              essa foi minha foto favorita de 2026, porque foi a primeira vez que visitei Marseille, a cidade que virou
+              meu lugar preferido no mundo&nbsp;♡
               <br />
-              A próxima favorita vai ser a gente junto, dia 28.
+              a próxima vai ser a que vamos tirar dia&nbsp;28&nbsp;♡
               <br />
-              <strong>Te espero! Yas</strong>
+              <strong>até lá, Yas</strong>
             </span>
           </span>
         </span>

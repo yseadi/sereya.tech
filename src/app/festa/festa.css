@@ -780,9 +780,9 @@
 .festa-postcard-face img { display: block; width: 100%; height: auto; border-radius: 2px; }
 .festa-postcard-cap { display: block; padding: 10px 4px 12px; font-size: 14px; color: var(--f-ink-2); }
 .festa-postcard-back { transform: rotateY(180deg); padding: 18px 22px 22px; display: flex; flex-direction: column; justify-content: space-between; background: #fffdf8; }
-.festa-postcard-note { display: block; font-size: 18px; line-height: 32px; color: var(--f-ink); background-image: linear-gradient(transparent calc(100% - 1px), #e9e1f5 1px); background-size: 100% 32px; }
+.festa-postcard-note { display: block; font-size: 16px; line-height: 28px; color: var(--f-ink); background-image: linear-gradient(transparent calc(100% - 1px), #e9e1f5 1px); background-size: 100% 28px; }
 .festa-postcard-note strong { display: block; color: var(--f-lilac-deep); }
-.festa-postcard-top { display: flex; justify-content: flex-end; align-items: center; gap: 0; margin-bottom: 12px; }
+.festa-postcard-top { display: flex; justify-content: flex-end; align-items: center; gap: 0; margin-bottom: 6px; }
 .festa-postcard-stamp { width: 60px; height: 72px; display: grid; place-items: center; align-content: center; gap: 2px; background: var(--f-blush); outline: 3px dashed #fff; outline-offset: -6px; rotate: 4deg; font-size: 24px; }
 .festa-postcard-stamp small { font-size: 12px; font-weight: 700; color: var(--f-ink); }
 .festa-postcard-mark { width: 74px; height: 74px; margin-right: -16px; position: relative; z-index: 1; border: 2px solid rgba(91, 74, 158, 0.45); border-radius: 50%; display: grid; place-items: center; text-align: center; font-size: 9px; font-weight: 700; letter-spacing: 0.08em; color: rgba(91, 74, 158, 0.65); rotate: -14deg; line-height: 1.5; }
