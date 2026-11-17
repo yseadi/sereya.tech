@@ -24,17 +24,10 @@ export const FESTA = {
     { emoji: "🗺️", front: "lugares com a minha cara", back: "uma curadoria de lugares que você ache a minha cara, pode ser em qualquer lugar do mundo" },
     { emoji: "📌", front: "um moodboard", back: "no Pinterest, com imagens que você acha que têm a minha vibe" },
   ],
-  /**
-   * Photos for the draggable polaroids: put the files in public/festa/fotos/.
-   */
-  heroPhoto: { src: "/festa/fotos/marseille.jpg", caption: "marseille 🫧", position: "22% 40%" },
-  photos: [
-    { src: "/festa/fotos/mini-yas-oculos.jpg", caption: "mini yas 🕶️", position: "50% 45%" },
-    { src: "/festa/fotos/mar.jpg", caption: "mediterrâneo 🌊", position: "50% 62%" },
-    { src: "/festa/fotos/brasil.jpg", caption: "Brasil 💚💛", position: "50% 42%" },
-    { src: "/festa/fotos/raizes.jpg", caption: "حبيبي ☀️", position: "50% 32%" },
-    { src: "/festa/fotos/mini-yas-berco.jpg", caption: "mini yas 👶", position: "38% 40%" },
-  ] as { src: string; caption: string; position?: string }[],
+  /** Photos live in public/festa/fotos/. Marseille closes the page as a postcard. */
+  heroPhoto: { src: "/festa/fotos/marseille.jpg", caption: "marseille 🫧" },
+  /** Shown on the screen after answering: yes, or no. */
+  thanksPhoto: { going: "/festa/fotos/sim.jpg", notGoing: "/festa/fotos/nao.jpg" },
 };
 
 export type FestaPerson = {

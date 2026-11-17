@@ -102,7 +102,7 @@ export function Convite() {
 
       <Gifts />
 
-      <Gallery />
+      <Postcard />
 
       <footer className="festa-foot">
         feito com 💜 pela {FESTA.host} · <a href="https://sereya.tech">sereya.tech</a>
@@ -377,7 +377,7 @@ function PersonCard({
       </div>
       <label className="festa-field festa-field--name">
         <span>
-          🪪 nome e sobrenome, vai pra portaria
+          nome e sobrenome, vai pra portaria
         </span>
         <input
           value={person.full_name}
@@ -591,9 +591,8 @@ function Thanks({ saved, onEdit }: { saved: { id: string; answer: FestaAnswer };
   if (!a.going) {
     return (
       <div className="festa-thanks">
-        <p className="festa-thanks-emoji" aria-hidden>
-          🥲
-        </p>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img className="festa-thanks-photo festa-thanks-photo--no" src={FESTA.thanksPhoto.notGoing} alt="mini Yas chorando" />
         <h2>que pena! obrigada por avisar</h2>
         <p>Você vai fazer falta. Se mudar de ideia, pode mudar a resposta aqui!</p>
         <button type="button" className="festa-btn" onClick={onEdit}>
@@ -604,9 +603,8 @@ function Thanks({ saved, onEdit }: { saved: { id: string; answer: FestaAnswer };
   }
   return (
     <div className="festa-thanks">
-      <p className="festa-thanks-emoji" aria-hidden>
-        🥳
-      </p>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img className="festa-thanks-photo" src={FESTA.thanksPhoto.going} alt="mini Yas de óculos escuros" />
       <h2>eba! tá confirmado</h2>
       <p>
         Te espero {FESTA.dateLabel}, {FESTA.timeLabel}.
@@ -644,113 +642,49 @@ function Thanks({ saved, onEdit }: { saved: { id: string; answer: FestaAnswer };
 }
 
 /* ------------------------------------------------------------------ */
-/* Photos: Marseille big, the rest in a grid; tap to see full size     */
+/* Closing postcard: Marseille on the front, a note on the back        */
 /* ------------------------------------------------------------------ */
 
-function Gallery() {
-  const all = [FESTA.heroPhoto, ...FESTA.photos];
-  const [open, setOpen] = useState<number | null>(null);
-  const [at, setAt] = useState(0);
-  const grid = useRef<HTMLDivElement>(null);
-  const touch = useRef<number | null>(null);
-
-  useEffect(() => {
-    const els = grid.current?.querySelectorAll(".festa-shot");
-    if (!els || !("IntersectionObserver" in window)) return;
-    const io = new IntersectionObserver(
-      (entries) =>
-        entries.forEach((en) => {
-          if (en.isIntersecting) {
-            en.target.classList.add("is-in");
-            io.unobserve(en.target);
-          }
-        }),
-      { threshold: 0.15 },
-    );
-    els.forEach((el) => io.observe(el));
-    return () => io.disconnect();
-  }, []);
-
-  useEffect(() => {
-    if (open === null) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpen(null);
-      if (e.key === "ArrowRight") setOpen((i) => (i === null ? i : (i + 1) % all.length));
-      if (e.key === "ArrowLeft") setOpen((i) => (i === null ? i : (i - 1 + all.length) % all.length));
-    };
-    window.addEventListener("keydown", onKey);
-    document.body.style.overflow = "hidden";
-    return () => {
-      window.removeEventListener("keydown", onKey);
-      document.body.style.overflow = "";
-    };
-  }, [open, all.length]);
-
+function Postcard() {
+  const [flipped, setFlipped] = useState(false);
   return (
-    <section className="festa-gallery" aria-label="Fotos">
-      <h2>um pouquinho do meu ano</h2>
-      <button type="button" className="festa-wide" onClick={() => setOpen(0)} aria-label={`Ver foto: ${all[0].caption}`}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={all[0].src} alt="" loading="lazy" />
-        <span className="festa-shot-cap">{all[0].caption}</span>
-      </button>
-      <div
-        ref={grid}
-        className="festa-shots"
-        onScroll={(e) => {
-          const el = e.currentTarget;
-          const first = el.firstElementChild as HTMLElement | null;
-          if (first) setAt(Math.round(el.scrollLeft / (first.offsetWidth + 12)));
-        }}
+    <section className="festa-gallery" aria-label="Cartão postal">
+      <h2>um postal pra você</h2>
+      <p className="festa-gifts-sub">toca pra virar</p>
+      <button
+        type="button"
+        className={`festa-postcard${flipped ? " is-flipped" : ""}`}
+        onClick={() => setFlipped((f) => !f)}
+        aria-label={flipped ? "Ver a foto" : "Ler o verso do postal"}
       >
-        {all.map((ph, i) => i === 0 ? null : (
-          <button
-            key={ph.src}
-            type="button"
-            className="festa-shot is-in"
-            onClick={() => setOpen(i)}
-            aria-label={`Ver foto: ${ph.caption}`}
-          >
+        <span className="festa-postcard-inner">
+          <span className="festa-postcard-face">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={ph.src} alt="" loading="lazy" style={{ objectPosition: ph.position }} />
-            <span className="festa-shot-cap">{ph.caption}</span>
-          </button>
-        ))}
-      </div>
-      <div className="festa-dots" aria-hidden>
-        {all.slice(1).map((_, i) => (
-          <span key={i} className={i === at ? "is-on" : ""} />
-        ))}
-      </div>
-      {open !== null && (
-        <div
-          className="festa-lightbox"
-          role="dialog"
-          aria-modal="true"
-          aria-label={all[open].caption}
-          onClick={() => setOpen(null)}
-          onTouchStart={(e) => (touch.current = e.touches[0].clientX)}
-          onTouchEnd={(e) => {
-            const start = touch.current;
-            touch.current = null;
-            if (start === null) return;
-            const dx = e.changedTouches[0].clientX - start;
-            if (Math.abs(dx) > 50) {
-              e.preventDefault();
-              setOpen((i) => (i === null ? i : (i + (dx < 0 ? 1 : -1) + all.length) % all.length));
-            }
-          }}
-        >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img key={open} src={all[open].src} alt={all[open].caption} onClick={(e) => e.stopPropagation()} />
-          <p>
-            {all[open].caption} <span>{open + 1}/{all.length}</span>
-          </p>
-          <button type="button" className="festa-lightbox-x" aria-label="Fechar">
-            ×
-          </button>
-        </div>
-      )}
+            <img src={FESTA.heroPhoto.src} alt="Yas em Marseille" />
+            <span className="festa-postcard-cap">Marseille, 2026</span>
+          </span>
+          <span className="festa-postcard-face festa-postcard-back">
+            <span className="festa-postcard-top" aria-hidden>
+              <span className="festa-postcard-mark">
+                MARSEILLE
+                <br />
+                ✦ 2026 ✦
+              </span>
+              <span className="festa-postcard-stamp">
+                <span>🎂</span>
+                <small>28·11</small>
+              </span>
+            </span>
+            <span className="festa-postcard-note">
+              Essa foi a minha preferida de 2026.
+              <br />
+              A próxima favorita vai ser a gente junto, dia 28.
+              <br />
+              <strong>Te espero! Yas</strong>
+            </span>
+          </span>
+        </span>
+      </button>
     </section>
   );
 }
