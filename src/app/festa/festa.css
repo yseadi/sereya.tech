@@ -756,3 +756,36 @@
 .festa-ack.is-on .festa-ack-tick { background: var(--f-lilac-deep); border-color: var(--f-lilac-deep); transform: scale(1.1); }
 .festa-slide.is-locked { opacity: 0.6; }
 .festa-slide.is-locked .festa-slide-knob { animation: none; }
+
+/* Photo on the screen after answering (replaces the emoji) */
+.festa-thanks-photo {
+  display: block;
+  width: 150px;
+  aspect-ratio: 1;
+  object-fit: cover;
+  margin: 0 auto 12px;
+  border-radius: 50%;
+  border: 5px solid #fff;
+  box-shadow: 0 0 0 3px var(--f-lilac), 0 12px 26px rgba(91, 74, 158, 0.2);
+  animation: festa-pop 0.7s cubic-bezier(0.2, 1.5, 0.4, 1) both, festa-wobble 3.2s ease-in-out 0.8s infinite;
+}
+.festa-thanks-photo--no { box-shadow: 0 0 0 3px var(--f-sky), 0 12px 26px rgba(91, 74, 158, 0.2); object-position: 50% 30%; }
+@keyframes festa-wobble { 0%, 100% { rotate: -3deg; } 50% { rotate: 3deg; } }
+
+/* Closing postcard: whole Marseille photo, flips to a note */
+.festa-postcard { display: block; width: 100%; margin-top: 14px; padding: 0; border: 0; background: none; perspective: 1400px; cursor: pointer; font: inherit; color: inherit; text-align: left; }
+.festa-postcard-inner { display: grid; rotate: -1.5deg; transition: transform 0.8s cubic-bezier(0.3, 1.3, 0.4, 1); transform-style: preserve-3d; }
+.festa-postcard.is-flipped .festa-postcard-inner { transform: rotateY(180deg); }
+.festa-postcard-face { grid-area: 1 / 1; display: block; background: #fff; padding: 10px 10px 0; border-radius: 6px; backface-visibility: hidden; -webkit-backface-visibility: hidden; box-shadow: 0 14px 30px rgba(91, 74, 158, 0.16); }
+.festa-postcard-face img { display: block; width: 100%; height: auto; border-radius: 2px; }
+.festa-postcard-cap { display: block; padding: 10px 4px 12px; font-size: 14px; color: var(--f-ink-2); }
+.festa-postcard-back { transform: rotateY(180deg); padding: 18px 22px 22px; display: flex; flex-direction: column; justify-content: space-between; background: #fffdf8; }
+.festa-postcard-note { display: block; font-size: 18px; line-height: 32px; color: var(--f-ink); background-image: linear-gradient(transparent calc(100% - 1px), #e9e1f5 1px); background-size: 100% 32px; }
+.festa-postcard-note strong { display: block; color: var(--f-lilac-deep); }
+.festa-postcard-top { display: flex; justify-content: flex-end; align-items: center; gap: 0; margin-bottom: 12px; }
+.festa-postcard-stamp { width: 60px; height: 72px; display: grid; place-items: center; align-content: center; gap: 2px; background: var(--f-blush); outline: 3px dashed #fff; outline-offset: -6px; rotate: 4deg; font-size: 24px; }
+.festa-postcard-stamp small { font-size: 12px; font-weight: 700; color: var(--f-ink); }
+.festa-postcard-mark { width: 74px; height: 74px; margin-right: -16px; position: relative; z-index: 1; border: 2px solid rgba(91, 74, 158, 0.45); border-radius: 50%; display: grid; place-items: center; text-align: center; font-size: 9px; font-weight: 700; letter-spacing: 0.08em; color: rgba(91, 74, 158, 0.65); rotate: -14deg; line-height: 1.5; }
+@media (prefers-reduced-motion: reduce) { .festa-thanks-photo { animation: none; } .festa-postcard-inner { transition: none; } }
+
+.festa-thanks > .festa-btn { width: 100%; margin-top: 16px; }
