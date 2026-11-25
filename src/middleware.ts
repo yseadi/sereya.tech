@@ -3,10 +3,17 @@ import { updateSession } from "@/lib/supabase/middleware";
 
 /** Subdomains that open the birthday invite (festa.sereya.tech and friends). */
 const FESTA_SUBDOMAINS = ["festa", "aniver", "yas"];
+/** Subdomain that serves Yasmim's personal site (yasmim.sereya.tech), a static page in public/yasmim. */
+const PERSONAL_SUBDOMAIN = "yasmim";
 
 export async function middleware(request: NextRequest) {
   const host = (request.headers.get("host") || "").toLowerCase();
   const sub = host.split(".")[0];
+  if (sub === PERSONAL_SUBDOMAIN && host.split(".").length > 2) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/yasmim/index.html";
+    return NextResponse.rewrite(url);
+  }
   const onFestaHost = FESTA_SUBDOMAINS.includes(sub) && host.split(".").length > 2;
   const path = request.nextUrl.pathname;
   const onFestaPath = path === "/festa" || path.startsWith("/festa/");
